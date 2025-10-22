@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { CometCard } from "@/components/ui/comet-card";
 
 export default function Hero() {
   return (
@@ -52,14 +53,16 @@ export default function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <Image
-              src="/hero.jpg"
-              alt="Electronic Components"
-              width={600}
-              height={400}
-              className="rounded-lg shadow-lg"
-              priority
-            />
+            <CometCard rotateDepth={10} translateDepth={10} className="w-fit">
+              <Image
+                src="/hero.jpg"
+                alt="Electronic Components"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-lg"
+                priority
+              />
+            </CometCard>
           </motion.div>
         </div>
       </div>
