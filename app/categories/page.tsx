@@ -1,9 +1,12 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Footer from '@/components/footer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Header from '@/components/header';
+import { motion } from 'framer-motion';
 
 
 const categoriesData = [
@@ -117,7 +120,29 @@ const categoriesData = [
   }
 ];
 
+// ...existing code...
+
 export default function CategoriesComponent() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
+  };
+
   return (
     <div className="min-h-screen">
       <ScrollArea className="h-screen">
@@ -125,66 +150,121 @@ export default function CategoriesComponent() {
         <main>
           <div className="min-h-screen bg-background">
             {/* Page Title Section */}
-
-            <div className='bg-linear-to-r from-primary/30 to-accent/30 py-12 mb-12'>
+            <motion.div
+              className='bg-linear-to-r from-primary/30 to-accent/30 py-12 mb-12'
+              initial={{ opacity: 0, y: -50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
               <div className="container mx-auto px-4 py-4">
-                <h1 className="text-4xl lg:text-5xl font-bold mb-4 text-center text-secondary">Product Categories</h1>
-                <p className="text-center text-lg text-muted-foreground max-w-2xl mx-auto">
+                <motion.h1
+                  className="text-4xl lg:text-5xl font-bold mb-4 text-center text-secondary"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                >
+                  Product Categories
+                </motion.h1>
+                <motion.p
+                  className="text-center text-lg text-muted-foreground max-w-2xl mx-auto"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  viewport={{ once: true }}
+                >
                   Explore our wide range of products across various categories.
-                </p>
+                </motion.p>
               </div>
-            </div>
-
+            </motion.div>
 
             {/* Categories Section */}
             <div className="container mx-auto px-4 py-12">
-              <div className="space-y-16">
+              <motion.div
+                className="space-y-16"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 {categoriesData.map((category) => (
-                  <div key={category.id} id={category.id} className="scroll-mt-20">
+                  <motion.div
+                    key={category.id}
+                    id={category.id}
+                    className="scroll-mt-20"
+                    variants={itemVariants}
+                  >
                     {/* Category Header */}
                     <div className="mb-8">
-                      <h2 className="text-3xl font-bold mb-2 text-center">{category.title}</h2>
-                      <p className="text-muted-foreground text-lg text-center">{category.description}</p>
+                      <motion.h2
+                        className="text-3xl font-bold mb-2 text-center"
+                        initial={{ opacity: 0, x: -50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true }}
+                      >
+                        {category.title}
+                      </motion.h2>
+                      <motion.p
+                        className="text-muted-foreground text-lg text-center"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        viewport={{ once: true }}
+                      >
+                        {category.description}
+                      </motion.p>
                     </div>
 
                     {/* Subcategories Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <motion.div
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                    >
                       {category.subcategories.map((subcategory, index) => (
-                        <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                          <div className="aspect-video overflow-hidden bg-muted">
-                            <Image
-                              src={subcategory.image}
-                              alt={subcategory.title}
-                              width={400}
-                              height={225}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                          <CardHeader>
-                            <CardTitle className="text-xl">{subcategory.title}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <CardDescription className="text-sm">
-                              {subcategory.description}
-                            </CardDescription>
-                          </CardContent>
-                          <CardFooter>
-                            <Button variant="default" className="w-full">
-                              View Category
-                            </Button>
-                          </CardFooter>
-                        </Card>
+                        <motion.div
+                          key={index}
+                          variants={cardVariants}
+                        >
+                          <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                            <div className="aspect-video overflow-hidden bg-muted">
+                              <Image
+                                src={subcategory.image}
+                                alt={subcategory.title}
+                                width={400}
+                                height={225}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                              />
+                            </div>
+                            <CardHeader>
+                              <CardTitle className="text-xl">{subcategory.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <CardDescription className="text-sm">
+                                {subcategory.description}
+                              </CardDescription>
+                            </CardContent>
+                            <CardFooter>
+                              <Button variant="default" className="w-full">
+                                View Category
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        </motion.div>
                       ))}
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </div>
         </main>
         <Footer />
       </ScrollArea>
     </div>
-
   );
 }
