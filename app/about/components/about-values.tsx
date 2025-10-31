@@ -59,7 +59,7 @@ export default function AboutMissionValues() {
           viewport={{ once: true }}
           className="text-[#333] max-w-3xl text-lg leading-relaxed"
         >
-          At Nextgen Circuits, we're guided by a set of core principles that define who we are and how we operate:
+          At Nextgen Circuits, we&apos;re guided by a set of core principles that define who we are and how we operate:
         </motion.p>
 
         {/* Value Cards */}
