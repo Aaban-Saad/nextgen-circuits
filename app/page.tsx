@@ -11,8 +11,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      <ScrollArea className="h-screen">
-        <Header />
+ 
+        {/* <Header /> */}
         <main>
           <Hero />
           <FeaturedCategories />
@@ -20,8 +20,8 @@ export default function HomePage() {
           <WhyChooseUs />
           <Newsletter />
         </main>
-        <Footer />
-      </ScrollArea>
+
+  
     </div>
   );
 }

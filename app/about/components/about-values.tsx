@@ -40,15 +40,15 @@ export default function AboutMissionValues() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-[#0066cc] mb-6 relative inline-block pb-4"
+          className="text-3xl md:text-4xl font-bold text-[#0066cc] mb-6 relative inline-block pb-4 group"
         >
           Our Mission & Values
           <span
-            className="absolute bottom-0 left-0 h-[3px] w-20 transition-all duration-300"
+            className="absolute bottom-0 left-0 h-[3px] w-20 transition-all duration-300 hover:w-48 group-hover:w-48"
             style={{
               background: "linear-gradient(to right, #00ccff, #e1f5fe)",
             }}
-          ></span>
+          />
         </motion.h2>
 
         {/* Intro Text */}

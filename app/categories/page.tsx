@@ -3,9 +3,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import Footer from '@/components/footer';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import Header from '@/components/header';
+
 import { motion } from 'framer-motion';
 
 
@@ -145,8 +143,8 @@ export default function CategoriesComponent() {
 
   return (
     <div className="min-h-screen">
-      <ScrollArea className="h-screen">
-        <Header />
+
+        {/* <Header /> */}
         <main>
           <div className="min-h-screen bg-background">
             {/* Page Title Section */}
@@ -263,8 +261,6 @@ export default function CategoriesComponent() {
             </div>
           </div>
         </main>
-        <Footer />
-      </ScrollArea>
     </div>
   );
 }

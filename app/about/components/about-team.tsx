@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Linkedin, Twitter, Facebook } from "lucide-react"
+import Image from "next/image"
 
 export default function AboutTeam() {
   const teamMembers = [
@@ -39,12 +40,12 @@ export default function AboutTeam() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-[#0066cc] mb-4 relative inline-block pb-4"
+          className="text-3xl md:text-4xl font-bold text-[#0066cc] mb-4 relative inline-block pb-4 group"
         >
           Meet Our Team
           <span
-            className="absolute bottom-0 left-0 h-[3px] w-20 transition-all duration-300"
-            style={{ background: "linear-gradient(to right, #00ccff, #0066cc)" }}
+            className="absolute bottom-0 left-0 h-[3px] w-20 transition-all duration-300 hover:w-48 group-hover:w-48"
+            style={{ background: "linear-gradient(to right, #00ccff, #e1f5fe)" }}
           />
         </motion.h2>
 
@@ -66,21 +67,24 @@ export default function AboutTeam() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: member.delay }}
               viewport={{ once: true }}
-              className="team-member relative bg-white rounded-xl overflow-hidden shadow-[0_5px_20px_rgba(0,0,0,0.08)] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,0,0,0.12)] group"
+              className="team-member relative rounded-sm bg-white  overflow-hidden shadow-[0_5px_20px_rgba(0,0,0,0.08)] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,0,0,0.12)] group"
             >
               {/* Bottom line */}
               <div
-                className="absolute bottom-0 left-0 w-0 h-[3px] group-hover:w-full transition-all duration-300"
-                style={{ background: "linear-gradient(to right, #00ccff, #0066cc)" }}
+                className="absolute bottom-0 z-40 left-0 w-0 h-[3px] group-hover:w-full transition-all duration-300"
+                style={{ background: "linear-gradient(to right, #00ccff, #e1f5fe)" }}
               />
 
               {/* Image */}
               <div className="member-image relative h-[280px] overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                <img
+                <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+                <Image
                   src={member.image}
                   alt={member.name}
-                  className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-[1.08]"
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.08]"
+                  unoptimized
                 />
               </div>
 
@@ -92,13 +96,26 @@ export default function AboutTeam() {
                 <p className="text-[#00ccff] mb-4 font-medium text-[1.05rem]">{member.role}</p>
 
                 <div className="social-links flex justify-center gap-4">
-                  {[Linkedin, Twitter, Facebook].map((Icon, i) => (
+                  {[
+                    { Icon: Linkedin, name: 'linkedin', color: '#0A66C2' },
+                    { Icon: Twitter, name: 'twitter', color: '#1DA1F2' },
+                    { Icon: Facebook, name: 'facebook', color: '#1877F2' },
+                  ].map(({ Icon, name, color }, i) => (
                     <a
                       key={i}
                       href="#"
-                      className="w-9 h-9 rounded-full flex items-center justify-center bg-[#f5f5f5] text-[#777] hover:bg-[#00ccff] hover:text-white hover:-translate-y-[3px] transition-all duration-300"
+                      aria-label={name}
+                      className={
+                        `w-9 h-9 rounded-full flex items-center justify-center bg-white text-[#777] shadow-[0_5px_20px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-[3px]`
+                      }
+                      // apply hover color via inline style on hover using onMouseEnter/Leave would be heavier; instead use inline style for boxShadow and set CSS variable for hover
+                      style={{}}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4" style={{ transition: 'color .2s ease' }} />
+                      <style jsx>{`
+                        a[aria-label=${name}]:hover { background: ${color}; color: #fff; }
+                        a[aria-label=${name}]:hover svg { color: #fff; }
+                      `}</style>
                     </a>
                   ))}
                 </div>
