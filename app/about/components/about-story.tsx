@@ -13,13 +13,14 @@ export default function AboutStory() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold mb-8 text-[#0066cc] relative pb-4 inline-block"
+          className="text-3xl md:text-4xl font-bold mb-8 relative pb-4 inline-block"
+          style={{ color: 'var(--heading-blue)' }}
         >
           Our Story
           <span
             className="absolute bottom-0 left-0 h-[3px] w-20 transition-all duration-300"
             style={{
-              background: "linear-gradient(to right, #00ccff, #e1f5fe)",
+              background: `linear-gradient(to right, var(--accent-cyan), var(--hero-bg))`,
             }}
           ></span>
         </motion.h2>
@@ -32,7 +33,8 @@ export default function AboutStory() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.9, delay: 0.2 }}
             viewport={{ once: true }}
-            className="space-y-5 text-[#333]"
+            className="space-y-5"
+            style={{ color: 'var(--text-gray)' }}
           >
             <p>
               Founded in 2015, Nextgen Circuits began with a simple mission: to

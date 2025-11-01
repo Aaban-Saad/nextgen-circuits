@@ -44,6 +44,18 @@ export default function Header() {
               </li>
               <li>
                 <Link
+                  href="/products"
+                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
+                    isActive("/products")
+                      ? "text-secondary-foreground after:scale-x-100"
+                      : "text-muted hover:text-secondary-foreground after:scale-x-0 hover:after:scale-x-100"
+                  }`}
+                >
+                  Products
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/categories"
                   className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
                     isActive("/categories")
@@ -146,6 +158,19 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products"
+                  className={`block transition-colors ${
+                    isActive("/products")
+                      ? "text-secondary-foreground font-bold"
+                      : "text-muted hover:text-secondary-foreground"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Products
                 </Link>
               </li>
               <li>

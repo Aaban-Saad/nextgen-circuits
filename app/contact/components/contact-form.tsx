@@ -57,11 +57,11 @@ export default function ContactForm() {
   }
 
   return (
-    <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.1)] border-0 bg-white rounded-sm">
+    <Card className="border-0 rounded-sm" style={{ backgroundColor: 'var(--background)', boxShadow: '0 2px 8px var(--shadow-medium)' }}>
       <CardContent className="p-8 flex flex-col">
-        <h2 className="text-2xl font-semibold text-[#0066cc] mb-6 relative pb-3">
+        <h2 className="text-2xl font-semibold mb-6 relative pb-3" style={{ color: 'var(--heading-blue)' }}>
           Send Us a Message
-          <span className="absolute left-0 bottom-0 w-14 h-[3px] bg-[#00ccff]" />
+          <span className="absolute left-0 bottom-0 w-14 h-[3px]" style={{ backgroundColor: 'var(--accent-cyan)' }} />
         </h2>
 
         <Form {...form}>
@@ -75,7 +75,10 @@ export default function ContactForm() {
                   <FormControl>
                     <Input
                       placeholder=""
-                      className="w-full rounded-none border border-[#ddd] focus:outline-none focus:border-[#00ccff] focus:ring-0"
+                      className="w-full rounded-none focus:outline-none focus:ring-0"
+                      style={{ borderColor: 'var(--border-light)' }}
+                      onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
+                      onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                       {...field}
                     />
                   </FormControl>
@@ -94,7 +97,10 @@ export default function ContactForm() {
                       <Input
                         type="email"
                         placeholder=""
-                        className="w-full p3 rounded-none border border-[#ddd] "
+                        className="w-full p3 rounded-none"
+                        style={{ borderColor: 'var(--border-light)' }}
+                        onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
+                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                         {...field}
                       />
                       </FormControl>
@@ -113,7 +119,10 @@ export default function ContactForm() {
                     <Input
                       type="tel"
                       placeholder=""
-                      className="w-full rounded-none border border-[#ddd] focus:outline-none focus:border-[#00ccff] focus:ring-0"
+                      className="w-full rounded-none focus:outline-none focus:ring-0"
+                      style={{ borderColor: 'var(--border-light)' }}
+                      onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
+                      onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                       {...field}
                     />
                   </FormControl>
@@ -133,7 +142,7 @@ export default function ContactForm() {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full rounded-none border border-[#ddd] focus:outline-none focus:border-[#00ccff] focus:ring-0 bg-zinc-100">
+                      <SelectTrigger className="w-full rounded-none focus:outline-none focus:ring-0" style={{ borderColor: 'var(--border-light)', backgroundColor: 'var(--input)' }}>
                         <SelectValue placeholder="Select a subject" />
                       </SelectTrigger>
                     </FormControl>
@@ -159,7 +168,10 @@ export default function ContactForm() {
                   <FormControl>
                     <Textarea
                       placeholder=""
-                      className="w-full h-44 min-h-40 rounded-none border border-[#ddd] focus:outline-none focus:border-[#00ccff] focus:ring-0 resize-vertical"
+                      className="w-full h-44 min-h-40 rounded-none focus:outline-none focus:ring-0 resize-vertical"
+                      style={{ borderColor: 'var(--border-light)' }}
+                      onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
+                      onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                       {...field}
                     />
                   </FormControl>
@@ -172,7 +184,10 @@ export default function ContactForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-[#00ccff] hover:bg-[#009fd6] text-white px-6 py-2 text-md font-medium rounded-none mt-auto"
+                className="px-6 py-2 text-md font-medium rounded-none mt-auto text-white"
+                style={{ backgroundColor: 'var(--accent-cyan)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-cyan-hover)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-cyan)' }}
               >
                 {loading ? "Sending..." : "Send Message"}
               </Button>

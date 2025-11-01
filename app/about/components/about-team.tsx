@@ -40,12 +40,13 @@ export default function AboutTeam() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-[#0066cc] mb-4 relative inline-block pb-4 group"
+          className="text-3xl md:text-4xl font-bold mb-4 relative inline-block pb-4 group"
+          style={{ color: 'var(--heading-blue)' }}
         >
           Meet Our Team
           <span
             className="absolute bottom-0 left-0 h-[3px] w-20 transition-all duration-300 hover:w-48 group-hover:w-48"
-            style={{ background: "linear-gradient(to right, #00ccff, #e1f5fe)" }}
+            style={{ background: `linear-gradient(to right, var(--accent-cyan), var(--hero-bg))` }}
           />
         </motion.h2>
 
@@ -54,7 +55,8 @@ export default function AboutTeam() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-[#333] max-w-3xl text-lg leading-relaxed"
+          className="max-w-3xl text-lg leading-relaxed"
+          style={{ color: 'var(--text-gray)' }}
         >
           The passionate individuals behind Nextgen Circuits who work tirelessly to serve our community:
         </motion.p>
@@ -67,12 +69,15 @@ export default function AboutTeam() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: member.delay }}
               viewport={{ once: true }}
-              className="team-member relative rounded-sm bg-white  overflow-hidden shadow-[0_5px_20px_rgba(0,0,0,0.08)] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,0,0,0.12)] group"
+              className="team-member relative rounded-sm overflow-hidden transition-all duration-400 hover:-translate-y-2 group"
+              style={{ backgroundColor: 'var(--background)', boxShadow: '0 5px 20px var(--shadow-medium)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 15px 30px var(--shadow-medium)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 5px 20px var(--shadow-medium)' }}
             >
               {/* Bottom line */}
               <div
                 className="absolute bottom-0 z-40 left-0 w-0 h-[3px] group-hover:w-full transition-all duration-300"
-                style={{ background: "linear-gradient(to right, #00ccff, #e1f5fe)" }}
+                style={{ background: `linear-gradient(to right, var(--accent-cyan), var(--hero-bg))` }}
               />
 
               {/* Image */}
@@ -89,11 +94,11 @@ export default function AboutTeam() {
               </div>
 
               {/* Info */}
-              <div className="member-info p-[25px_20px] text-center relative bg-white group-hover:bg-[#f9f9f9] transition-colors duration-300">
-                <h3 className="text-[1.4rem] mb-2 text-[#004080] transition-colors duration-300 group-hover:text-[#00ccff]">
+              <div className="member-info p-[25px_20px] text-center relative transition-colors duration-300" style={{ backgroundColor: 'var(--background)' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-very-light-gray)' }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--background)' }}>
+                <h3 className="text-[1.4rem] mb-2 transition-colors duration-300" style={{ color: 'var(--hero-text)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-cyan)' }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--hero-text)' }}>
                   {member.name}
                 </h3>
-                <p className="text-[#00ccff] mb-4 font-medium text-[1.05rem]">{member.role}</p>
+                <p className="mb-4 font-medium text-[1.05rem]" style={{ color: 'var(--accent-cyan)' }}>{member.role}</p>
 
                 <div className="social-links flex justify-center gap-4">
                   {[

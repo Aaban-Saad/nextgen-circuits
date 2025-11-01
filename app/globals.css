@@ -36,9 +36,22 @@
   --sidebar-accent-foreground: #1e9df1;
   --sidebar-border: #e1e8ed;
   --sidebar-ring: #1da1f2;
-  --font-sans: Open Sans, sans-serif;
+  --hero-bg: #e1f5fe;
+  --hero-text: #004080;
+  --text-gray: #333333;
+  --text-gray-medium: #666666;
+  --heading-blue: #0066cc;
+  --accent-cyan: #00ccff;
+  --accent-cyan-hover: #009fd6;
+  --border-light: #dddddd;
+  --bg-light-gray: #f8f9fa;
+  --bg-very-light-gray: #f9f9f9;
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --shadow-medium: rgba(0, 0, 0, 0.1);
+  --decorative-blue: rgba(52, 152, 219, 0.1);
+  --font-sans: var(--font-geist-sans), sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-mono: var(--font-geist-mono), monospace;
   --radius: 1.3rem;
   --shadow-x: 0px;
   --shadow-y: 2px;
@@ -91,9 +104,22 @@
   --sidebar-accent-foreground: #1c9cf0;
   --sidebar-border: #38444d;
   --sidebar-ring: #1da1f2;
-  --font-sans: Open Sans, sans-serif;
+  --hero-bg: #061622;
+  --hero-text: #87ceeb;
+  --text-gray: #e7e9ea;
+  --text-gray-medium: #b4b4b4;
+  --heading-blue: #1da1f2;
+  --accent-cyan: #00ccff;
+  --accent-cyan-hover: #00b8e6;
+  --border-light: #38444d;
+  --bg-light-gray: #17181c;
+  --bg-very-light-gray: #1a1b1d;
+  --shadow-light: rgba(0, 0, 0, 0.2);
+  --shadow-medium: rgba(0, 0, 0, 0.3);
+  --decorative-blue: rgba(52, 152, 219, 0.2);
+  --font-sans: var(--font-geist-sans), sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-mono: var(--font-geist-mono), monospace;
   --radius: 1.3rem;
   --shadow-x: 0px;
   --shadow-y: 2px;
@@ -144,6 +170,16 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-hero-bg: var(--hero-bg);
+  --color-hero-text: var(--hero-text);
+  --color-text-gray: var(--text-gray);
+  --color-text-gray-medium: var(--text-gray-medium);
+  --color-heading-blue: var(--heading-blue);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-cyan-hover: var(--accent-cyan-hover);
+  --color-border-light: var(--border-light);
+  --color-bg-light-gray: var(--bg-light-gray);
+  --color-bg-very-light-gray: var(--bg-very-light-gray);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -169,7 +205,12 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    font-family: var(--font-geist-sans), sans-serif;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: inherit;
   }
 }
