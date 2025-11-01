@@ -8,8 +8,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export function AdminWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
+  const isUserRoute = pathname?.startsWith("/user");
 
-  if (isAdminRoute) {
+  if (isAdminRoute || isUserRoute) {
     return <>{children}</>;
   }
 

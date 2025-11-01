@@ -1,0 +1,328 @@
+/* User Dashboard Styles */
+
+:root {
+    --user-sidebar-bg: #2c3e50;
+    --user-primary: #3498db;
+    --user-primary-hover: #2980b9;
+    --user-sidebar-active: #3498db;
+    --user-text-primary: #333333;
+    --user-text-secondary: #666666;
+    --user-card-bg: #ffffff;
+    --user-border: #e0e0e0;
+    --user-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.user-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.user-sidebar {
+    width: 250px;
+    background-color: var(--user-sidebar-bg);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.user-main {
+    flex: 1;
+    margin-left: 250px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+.user-content {
+    padding: 30px;
+}
+
+.user-topbar {
+    background-color: #e3f2fd;
+    padding: 20px 30px;
+    box-shadow: var(--user-shadow);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+}
+
+.user-topbar h1 {
+    color: #1976d2;
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.user-topbar p {
+    color: #666666;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 992px) {
+    .user-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .user-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Dashboard Specific Styles */
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: var(--user-shadow);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    background-color: white;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header i {
+    font-size: 1.25rem;
+    color: var(--user-primary);
+    margin-right: 0.75rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--user-sidebar-bg);
+    font-weight: 600;
+}
+
+.card-content {
+    padding: 1.25rem;
+}
+
+/* Order Summary */
+.order-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: rgba(52, 152, 219, 0.05);
+    border-radius: 6px;
+}
+
+.summary-item span:first-child {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.summary-item .highlight {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--user-sidebar-bg);
+}
+
+/* Profile Summary */
+.profile-summary {
+    margin-bottom: 1rem;
+}
+
+.profile-info p {
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-info p:last-child {
+    border-bottom: none;
+}
+
+.membership-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Wishlist */
+.wishlist-items {
+    margin-bottom: 1rem;
+}
+
+.wishlist-items p {
+    margin-bottom: 0.75rem;
+}
+
+.wishlist-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.preview-item {
+    padding: 0.5rem 0.75rem;
+    background-color: rgba(52, 152, 219, 0.05);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--user-sidebar-bg);
+}
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--user-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.activity-details p {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+/* View All Link */
+.view-all {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--user-primary);
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.view-all:hover {
+    background-color: var(--user-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .order-summary {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    
+    .dashboard-card {
+        padding: 1rem;
+    }
+    
+    .card-header h3 {
+        font-size: 1rem;
+    }
+    
+    .summary-item span.highlight {
+        font-size: 1.2rem;
+    }
+    
+    .activity-item {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-item {
+        padding: 0.75rem;
+    }
+    
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .activity-details p {
+        font-size: 0.85rem;
+    }
+    
+    .activity-time {
+        font-size: 0.75rem;
+    }
+}
+
