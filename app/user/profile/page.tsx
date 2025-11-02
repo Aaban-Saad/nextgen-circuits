@@ -15,22 +15,23 @@ export default function MyProfilePage() {
       
       <div className="dashboard-content">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6 bg-white border border-gray-200 rounded-lg p-1">
-            <TabsTrigger value="delivery" className="flex items-center gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white">
-              <Truck size={16} />
-              Delivery Details
+          <TabsList className="profile-tabs-list mb-6 bg-white border border-gray-200 rounded-lg p-1 flex-wrap h-auto w-full justify-start gap-1">
+            <TabsTrigger value="delivery" className="profile-tab-trigger flex items-center gap-1 md:gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white text-xs md:text-sm px-2 md:px-4 py-2">
+              <Truck size={14} className="md:size-4 shrink-0" />
+              <span className="hidden sm:inline">Delivery Details</span>
+              <span className="sm:hidden">Delivery</span>
             </TabsTrigger>
-            <TabsTrigger value="orders" className="flex items-center gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white">
-              <Package size={16} />
-              Orders
+            <TabsTrigger value="orders" className="profile-tab-trigger flex items-center gap-1 md:gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white text-xs md:text-sm px-2 md:px-4 py-2">
+              <Package size={14} className="md:size-4 shrink-0" />
+              <span>Orders</span>
             </TabsTrigger>
-            <TabsTrigger value="wishlist" className="flex items-center gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white">
-              <Heart size={16} />
-              Wishlist
+            <TabsTrigger value="wishlist" className="profile-tab-trigger flex items-center gap-1 md:gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white text-xs md:text-sm px-2 md:px-4 py-2">
+              <Heart size={14} className="md:size-4 shrink-0" />
+              <span>Wishlist</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white">
-              <Settings size={16} />
-              Settings
+            <TabsTrigger value="settings" className="profile-tab-trigger flex items-center gap-1 md:gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white text-xs md:text-sm px-2 md:px-4 py-2">
+              <Settings size={14} className="md:size-4 shrink-0" />
+              <span>Settings</span>
             </TabsTrigger>
           </TabsList>
 
