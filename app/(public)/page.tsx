@@ -10,17 +10,13 @@ import WhyChooseUs from "@/components/why-choose-us";
 export default function HomePage() {
   return (
     <div className="min-h-screen">
- 
-        {/* <Header /> */}
-        <main>
-          <Hero />
-          <FeaturedCategories />
-          <FeaturedProducts />
-          <WhyChooseUs />
-          <Newsletter />
-        </main>
-
-  
+      <main>
+        <Hero />
+        <FeaturedCategories />
+        <FeaturedProducts />
+        <WhyChooseUs />
+        <Newsletter />
+      </main>
     </div>
   );
 }
