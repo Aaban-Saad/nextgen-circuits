@@ -14,11 +14,11 @@ export default function SettingsPage() {
       </div>
       <div className="dashboard-content">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <SettingsIcon className="size-8 text-[#3498db]" />
+        <div className="flex items-center gap-2 sm:gap-3 mb-6">
+          <SettingsIcon className="size-6 sm:size-8 text-[#3498db]" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-            <p className="text-gray-600 mt-1">Manage system settings</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Settings</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage system settings</p>
           </div>
         </div>
 

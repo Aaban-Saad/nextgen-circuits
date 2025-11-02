@@ -12,19 +12,20 @@ export default function ProductsPage() {
       </div>
       <div className="dashboard-content">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="products-page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
-          <p className="text-gray-600 mt-1">Manage your electronic components</p>
+          <h1 className="products-page-title text-2xl sm:text-3xl font-bold text-gray-900">Product Management</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your electronic components</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+        <div className="products-page-actions flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button className="products-action-btn px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors">
             <RefreshCw size={16} />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
-          <button className="px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+          <button className="products-action-btn px-3 sm:px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors">
             <Plus size={16} />
-            Add New Product
+            <span className="hidden sm:inline">Add New Product</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>

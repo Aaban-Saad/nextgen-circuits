@@ -56,68 +56,76 @@ const products = [
 
 export function ProductTable() {
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold text-gray-700">Product</TableHead>
-            <TableHead className="font-semibold text-gray-700">Category</TableHead>
-            <TableHead className="font-semibold text-gray-700">Stock</TableHead>
-            <TableHead className="font-semibold text-gray-700">Price</TableHead>
-            <TableHead className="font-semibold text-gray-700">Status</TableHead>
-            <TableHead className="font-semibold text-gray-700 text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {products.map((product) => (
-            <TableRow key={product.id} className="hover:bg-gray-50">
-              <TableCell>
-                <div>
-                  <div className="font-medium text-gray-900">{product.name}</div>
-                  <div className="text-sm text-gray-500">{product.id}</div>
-                </div>
-              </TableCell>
-              <TableCell className="text-gray-700">{product.category}</TableCell>
-              <TableCell>
-                <span className={`font-medium ${product.stockColor}`}>
-                  {product.stock}
-                </span>
-              </TableCell>
-              <TableCell className="font-medium text-gray-900">{product.price}</TableCell>
-              <TableCell>
-                <Badge className={`${product.statusColor} text-white`}>
-                  {product.status}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Edit"
-                    aria-label="Edit product"
-                  >
-                    <Edit size={16} className="text-gray-600" />
-                  </button>
-                  <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Delete"
-                    aria-label="Delete product"
-                  >
-                    <Trash2 size={16} className="text-red-600" />
-                  </button>
-                  <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="View"
-                    aria-label="View product"
-                  >
-                    <Eye size={16} className="text-gray-600" />
-                  </button>
-                </div>
-              </TableCell>
+    <div className="product-table-wrapper bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Product</TableHead>
+              <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden sm:table-cell">Category</TableHead>
+              <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Stock</TableHead>
+              <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Price</TableHead>
+              <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden md:table-cell">Status</TableHead>
+              <TableHead className="font-semibold text-gray-700 text-right whitespace-nowrap">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {products.map((product) => (
+              <TableRow key={product.id} className="hover:bg-gray-50">
+                <TableCell className="min-w-[150px]">
+                  <div>
+                    <div className="font-medium text-gray-900">{product.name}</div>
+                    <div className="text-xs sm:text-sm text-gray-500">{product.id}</div>
+                    <div className="text-xs text-gray-600 mt-1 sm:hidden">
+                      {product.category}
+                    </div>
+                    <Badge className={`${product.statusColor} text-white text-xs mt-1 md:hidden`}>
+                      {product.status}
+                    </Badge>
+                  </div>
+                </TableCell>
+                <TableCell className="text-gray-700 hidden sm:table-cell">{product.category}</TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <span className={`font-medium ${product.stockColor}`}>
+                    {product.stock}
+                  </span>
+                </TableCell>
+                <TableCell className="font-medium text-gray-900 whitespace-nowrap">{product.price}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <Badge className={`${product.statusColor} text-white`}>
+                    {product.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-end gap-1 sm:gap-2">
+                    <button
+                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Edit"
+                      aria-label="Edit product"
+                    >
+                      <Edit size={14} className="sm:size-4 text-gray-600" />
+                    </button>
+                    <button
+                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Delete"
+                      aria-label="Delete product"
+                    >
+                      <Trash2 size={14} className="sm:size-4 text-red-600" />
+                    </button>
+                    <button
+                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:inline-flex"
+                      title="View"
+                      aria-label="View product"
+                    >
+                      <Eye size={14} className="sm:size-4 text-gray-600" />
+                    </button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

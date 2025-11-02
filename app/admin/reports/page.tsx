@@ -12,18 +12,20 @@ export default function ReportsPage() {
       </div>
       <div className="dashboard-content">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="products-page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
+            <h1 className="products-page-title text-2xl sm:text-3xl font-bold text-gray-900">Reports</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+          <div className="products-page-actions flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button className="products-action-btn px-3 sm:px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors">
               <RefreshCw size={16} />
-              Refresh Data
+              <span className="hidden sm:inline">Refresh Data</span>
+              <span className="sm:hidden">Refresh</span>
             </button>
-            <button className="px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+            <button className="products-action-btn px-3 sm:px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors">
               <Plus size={16} />
-              Generate Report
+              <span className="hidden sm:inline">Generate Report</span>
+              <span className="sm:hidden">Generate</span>
             </button>
           </div>
         </div>
@@ -68,9 +70,9 @@ export default function ReportsPage() {
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="size-5 text-gray-700" />
-            <h2 className="text-xl font-semibold text-gray-900">Report Types</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Report Types</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <ReportTypeCard
               title="Sales Report"
               description="Revenue, orders, and product performance."
@@ -102,7 +104,7 @@ export default function ReportsPage() {
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="size-5 text-gray-700" />
-            <h2 className="text-xl font-semibold text-gray-900">Recent Reports</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recent Reports</h2>
           </div>
           <RecentReportsTable />
         </div>
@@ -111,10 +113,10 @@ export default function ReportsPage() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <FileText className="size-5 text-gray-700" />
-            <h2 className="text-xl font-semibold text-gray-900">Report Analytics</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Report Analytics</h2>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-            <p className="text-gray-500 text-center">Report analytics content will be displayed here</p>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8 border border-gray-200">
+            <p className="text-gray-500 text-center text-sm sm:text-base">Report analytics content will be displayed here</p>
           </div>
         </div>
       </div>

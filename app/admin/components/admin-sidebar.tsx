@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   LineChart,
   Box,
@@ -15,6 +16,8 @@ import {
   Headphones,
   ArrowLeft,
   Settings,
+  Menu,
+  X,
 } from "lucide-react";
 
 const menuItems = [
@@ -63,41 +66,83 @@ const menuItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu when clicking outside or on a link
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 992) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   return (
-    <aside className="admin-sidebar">
-      <div className="sidebar-header">
-        <Link href="/admin" className="logo-text">
-          <span className="next">Next</span>
-          <span className="gen">gen</span> <span className="circuits">Circuits</span>
-        </Link>
-        <div className="admin-title">
-          <h2>Admin Panel</h2>
-        </div>
-      </div>
-      
-      <nav className="sidebar-menu">
-        {menuItems.map((group, groupIndex) => (
-          <div key={group.title} className={`menu-section ${groupIndex === menuItems.length - 1 ? "mt-auto back-to-site" : ""}`}>
-            <label className="menu-label">{group.title}</label>
-            {group.items.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.url || (item.url === "/admin" && pathname === "/admin");
-              
-              return (
-                <Link
-                  key={item.title}
-                  href={item.url}
-                  className={`menu-item ${isActive ? "active" : ""}`}
-                >
-                  <i><Icon size={20} /></i>
-                  {item.title}
-                </Link>
-              );
-            })}
+    <>
+      {/* Hamburger Menu Button - Only visible on mobile */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={toggleMobileMenu}
+        aria-label="Toggle menu"
+      >
+        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Overlay - Only visible when mobile menu is open */}
+      {isMobileMenuOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={closeMobileMenu}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside className={`admin-sidebar ${isMobileMenuOpen ? "mobile-open" : ""}`}>
+        <div className="sidebar-header">
+          <Link href="/admin" className="logo-text" onClick={closeMobileMenu}>
+            <span className="next">Next</span>
+            <span className="gen">gen</span> <span className="circuits">Circuits</span>
+          </Link>
+          <div className="admin-title">
+            <h2>Admin Panel</h2>
           </div>
-        ))}
-      </nav>
-    </aside>
+        </div>
+        
+        <nav className="sidebar-menu">
+          {menuItems.map((group, groupIndex) => (
+            <div key={group.title} className={`menu-section ${groupIndex === menuItems.length - 1 ? "mt-auto back-to-site" : ""}`}>
+              <label className="menu-label">{group.title}</label>
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.url || (item.url === "/admin" && pathname === "/admin");
+                
+                return (
+                  <Link
+                    key={item.title}
+                    href={item.url}
+                    className={`menu-item ${isActive ? "active" : ""}`}
+                    onClick={closeMobileMenu}
+                  >
+                    <i><Icon size={20} /></i>
+                    {item.title}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }

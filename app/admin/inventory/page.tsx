@@ -12,15 +12,16 @@ export default function InventoryPage() {
       </div>
       <div className="dashboard-content">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="products-page-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Inventory Management</h1>
-            <p className="text-gray-600 mt-1">Track and manage your stock levels</p>
+            <h1 className="products-page-title text-2xl sm:text-3xl font-bold text-gray-900">Inventory Management</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Track and manage your stock levels</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
+          <div className="products-page-actions flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button className="products-action-btn px-3 sm:px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors">
               <Plus size={16} />
-              Adjust Stock
+              <span className="hidden sm:inline">Adjust Stock</span>
+              <span className="sm:hidden">Adjust</span>
             </button>
           </div>
         </div>
