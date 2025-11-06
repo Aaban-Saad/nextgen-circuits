@@ -7,6 +7,7 @@ import Image from "next/image";
 import { CometCard } from "@/components/ui/comet-card";
 
 export default function Hero() {
+
   return (
     <section className="hero py-20 bg-secondary text-secondary-foreground rounded-b-4xl">
       <div className="container mx-auto px-6">

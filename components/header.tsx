@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
+import { useAuth } from "@/lib/supabase/use-auth";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
   const [cartCount] = useState(0);
   const pathname = usePathname();
 
@@ -108,7 +110,7 @@ export default function Header() {
             {/* User Actions */}
             <div className="user-actions flex items-center gap-2">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">
+                <Link href={user ? "/user" : "/login"}>
                   <User className="w-5 h-5" />
                 </Link>
               </Button>

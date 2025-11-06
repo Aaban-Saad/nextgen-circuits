@@ -9,11 +9,11 @@ export default function PublicLayout({
 }) {
   return (
     <>
+      {/* <ScrollArea className="h-screen"> */}
       <Header />
-      <ScrollArea className="h-screen">
         {children}
         <Footer />
-      </ScrollArea>
+      {/* </ScrollArea> */}
     </>
   );
 }

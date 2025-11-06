@@ -7,6 +7,7 @@ import { RecentActivity } from "./components/recent-activity";
 import { AdminHeader } from "./components/admin-header";
 
 export default function AdminDashboard() {
+
   return (
     <>
       <div className="admin-topbar">
