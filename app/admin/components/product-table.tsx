@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Edit, Trash2, Eye } from "lucide-react";
 import {
   Table,
@@ -10,123 +11,182 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Product } from "../products/page";
+import { EditProductDialog } from "./edit-product-dialog";
+import { DeleteProductDialog } from "./delete-product-dialog";
+import { ViewProductDialog } from "./view-product-dialog";
 
-const products = [
-  {
-    id: "ARD-NANO-001",
-    name: "Arduino Nano",
-    category: "Development Boards",
-    stock: 150,
-    stockColor: "text-green-600",
-    price: "$24.99",
-    status: "ACTIVE",
-    statusColor: "bg-green-500",
-  },
-  {
-    id: "RPI-4B-2GB",
-    name: "Raspberry Pi 4",
-    category: "Development Boards",
-    stock: 75,
-    stockColor: "text-green-600",
-    price: "$45.99",
-    status: "ACTIVE",
-    statusColor: "bg-green-500",
-  },
-  {
-    id: "RES-10K-100PK",
-    name: "10k Resistor Pack",
-    category: "Resistors",
-    stock: 30,
-    stockColor: "text-yellow-600",
-    price: "$4.99",
-    status: "LOW-STOCK",
-    statusColor: "bg-orange-500",
-  },
-  {
-    id: "CAP-100UF-50V",
-    name: "100uF Capacitor",
-    category: "Capacitors",
-    stock: 0,
-    stockColor: "text-red-600",
-    price: "$2.49",
-    status: "INACTIVE",
-    statusColor: "bg-red-500",
-  },
-];
+interface ProductTableProps {
+  products: Product[]
+  loading: boolean
+  onRefresh: () => void
+}
 
-export function ProductTable() {
-  return (
-    <div className="product-table-wrapper bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Product</TableHead>
-              <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden sm:table-cell">Category</TableHead>
-              <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Stock</TableHead>
-              <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Price</TableHead>
-              <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden md:table-cell">Status</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-right whitespace-nowrap">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id} className="hover:bg-gray-50">
-                <TableCell className="min-w-[150px]">
-                  <div>
-                    <div className="font-medium text-gray-900">{product.name}</div>
-                    <div className="text-xs sm:text-sm text-gray-500">{product.id}</div>
-                    <div className="text-xs text-gray-600 mt-1 sm:hidden">
-                      {product.category}
-                    </div>
-                    <Badge className={`${product.statusColor} text-white text-xs mt-1 md:hidden`}>
-                      {product.status}
-                    </Badge>
-                  </div>
-                </TableCell>
-                <TableCell className="text-gray-700 hidden sm:table-cell">{product.category}</TableCell>
-                <TableCell className="whitespace-nowrap">
-                  <span className={`font-medium ${product.stockColor}`}>
-                    {product.stock}
-                  </span>
-                </TableCell>
-                <TableCell className="font-medium text-gray-900 whitespace-nowrap">{product.price}</TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <Badge className={`${product.statusColor} text-white`}>
-                    {product.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-end gap-1 sm:gap-2">
-                    <button
-                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Edit"
-                      aria-label="Edit product"
-                    >
-                      <Edit size={14} className="sm:size-4 text-gray-600" />
-                    </button>
-                    <button
-                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Delete"
-                      aria-label="Delete product"
-                    >
-                      <Trash2 size={14} className="sm:size-4 text-red-600" />
-                    </button>
-                    <button
-                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:inline-flex"
-                      title="View"
-                      aria-label="View product"
-                    >
-                      <Eye size={14} className="sm:size-4 text-gray-600" />
-                    </button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+export function ProductTable({ products, loading, onRefresh }: ProductTableProps) {
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null)
+
+  const getStockColor = (stock: number) => {
+    if (stock === 0) return "text-red-600"
+    if (stock < 50) return "text-yellow-600"
+    return "text-green-600"
+  }
+
+  const getStockStatus = (stock: number) => {
+    if (stock === 0) return { label: "OUT OF STOCK", color: "bg-red-500" }
+    if (stock < 50) return { label: "LOW STOCK", color: "bg-orange-500" }
+    return { label: "IN STOCK", color: "bg-green-500" }
+  }
+
+  const formatCategory = (category: string) => {
+    return category
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
+  if (loading) {
+    return (
+      <div className="product-table-wrapper bg-white rounded-lg shadow-sm overflow-hidden p-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3498db]"></div>
+          <span className="ml-3 text-gray-600">Loading products...</span>
+        </div>
       </div>
-    </div>
+    )
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="product-table-wrapper bg-white rounded-lg shadow-sm overflow-hidden p-8">
+        <div className="text-center text-gray-500">
+          <p className="text-lg font-medium">No products found</p>
+          <p className="text-sm mt-1">Add your first product to get started</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="product-table-wrapper bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50">
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Product</TableHead>
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden sm:table-cell">Category</TableHead>
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Stock</TableHead>
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Price</TableHead>
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden md:table-cell">Status</TableHead>
+                <TableHead className="font-semibold text-gray-700 text-right whitespace-nowrap">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => {
+                const status = getStockStatus(product.stock)
+                return (
+                  <TableRow key={product.id} className="hover:bg-gray-50">
+                    <TableCell className="min-w-[150px]">
+                      <div>
+                        <div className="font-medium text-gray-900">{product.name}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">{product.sku}</div>
+                        <div className="text-xs text-gray-600 mt-1 sm:hidden">
+                          {formatCategory(product.category)}
+                        </div>
+                        <Badge className={`${status.color} text-white text-xs mt-1 md:hidden`}>
+                          {status.label}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-700 hidden sm:table-cell">
+                      {formatCategory(product.category)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <span className={`font-medium ${getStockColor(product.stock)}`}>
+                        {product.stock}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-900 whitespace-nowrap">
+                      ${product.price.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge className={`${status.color} text-white`}>
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1 sm:gap-2">
+                        <button
+                          className="p-1.5 sm:p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="View"
+                          aria-label="View product"
+                          onClick={() => setViewingProduct(product)}
+                        >
+                          <Eye size={14} className="sm:size-4 text-blue-600" />
+                        </button>
+                        <button
+                          className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="Edit"
+                          aria-label="Edit product"
+                          onClick={() => setEditingProduct(product)}
+                        >
+                          <Edit size={14} className="sm:size-4 text-gray-600" />
+                        </button>
+                        <button
+                          className="p-1.5 sm:p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete"
+                          aria-label="Delete product"
+                          onClick={() => setDeletingProduct(product)}
+                        >
+                          <Trash2 size={14} className="sm:size-4 text-red-600" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* View Product Dialog */}
+      {viewingProduct && (
+        <ViewProductDialog
+          product={viewingProduct}
+          isOpen={!!viewingProduct}
+          onClose={() => setViewingProduct(null)}
+        />
+      )}
+
+      {/* Edit Product Dialog */}
+      {editingProduct && (
+        <EditProductDialog
+          product={editingProduct}
+          isOpen={!!editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onSuccess={() => {
+            setEditingProduct(null)
+            onRefresh()
+          }}
+        />
+      )}
+
+      {/* Delete Product Dialog */}
+      {deletingProduct && (
+        <DeleteProductDialog
+          product={deletingProduct}
+          isOpen={!!deletingProduct}
+          onClose={() => setDeletingProduct(null)}
+          onSuccess={() => {
+            setDeletingProduct(null)
+            onRefresh()
+          }}
+        />
+      )}
+    </>
   );
 }
 

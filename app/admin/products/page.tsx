@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ShoppingBag, Tag, AlertTriangle, DollarSign, RefreshCw, Plus } from "lucide-react"
 import { ProductStatsCard } from "../components/product-stats-card"
 import { ProductTable } from "../components/product-table"
@@ -13,10 +13,49 @@ import { useAuth } from "@/lib/supabase/use-auth"
 import { toast } from "sonner"
 import { isAdmin } from "@/lib/supabase/role-access-control"
 
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  stock: number
+  sku: string
+  image_url: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
 export default function ProductsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const { user, profile } = useAuth()
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      setProducts(data || [])
+    } catch (error: any) {
+      console.error('Error fetching products:', error)
+      toast.error('Failed to fetch products')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
 
   const handleAddProduct = async (product: ProductFormData) => {
     setIsSubmitting(true)
@@ -51,9 +90,10 @@ export default function ProductsPage() {
 
       toast.success(`Product "${product.name}" added successfully`)
 
-      console.log('Product added:', data)
+      // Refresh products list
+      fetchProducts()
 
-      // Close dialog AFTER resetting submitting state
+      // Close dialog
       setIsDialogOpen(false)
       
     } catch (error: any) {
@@ -66,8 +106,14 @@ export default function ProductsPage() {
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false)
-    setIsSubmitting(false) // Reset submitting state when closing
+    setIsSubmitting(false)
   }
+
+  // Calculate stats
+  const totalProducts = products.length
+  const categories = new Set(products.map(p => p.category)).size
+  const lowStockItems = products.filter(p => p.stock < 50).length
+  const inventoryValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0)
 
   return (
     <>
@@ -82,8 +128,8 @@ export default function ProductsPage() {
             <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your electronic components</p>
           </div>
           <div className="products-page-actions flex items-center gap-2 sm:gap-3 flex-wrap">
-            <Button variant="outline" size="sm" className="gap-2">
-              <RefreshCw size={16} />
+            <Button variant="outline" size="sm" className="gap-2" onClick={fetchProducts} disabled={loading}>
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
             <Button
@@ -103,7 +149,7 @@ export default function ProductsPage() {
         <div className="stats-grid">
           <ProductStatsCard
             title="Total Products"
-            value="4"
+            value={totalProducts.toString()}
             trend="+12.5%↑"
             trendPositive={true}
             icon={<ShoppingBag size={24} className="text-[#3498db]" />}
@@ -111,7 +157,7 @@ export default function ProductsPage() {
           />
           <ProductStatsCard
             title="Categories"
-            value="3"
+            value={categories.toString()}
             trend="+2↑"
             trendPositive={true}
             icon={<Tag size={24} className="text-[#2ecc71]" />}
@@ -119,7 +165,7 @@ export default function ProductsPage() {
           />
           <ProductStatsCard
             title="Low Stock Items"
-            value="1"
+            value={lowStockItems.toString()}
             trend="+5↑"
             trendPositive={true}
             icon={<AlertTriangle size={24} className="text-[#9333ea]" />}
@@ -127,7 +173,7 @@ export default function ProductsPage() {
           />
           <ProductStatsCard
             title="Inventory Value"
-            value="$7347.45"
+            value={`$${inventoryValue.toFixed(2)}`}
             trend="+8.3%↑"
             trendPositive={true}
             icon={<DollarSign size={24} className="text-[#e74c3c]" />}
@@ -139,7 +185,7 @@ export default function ProductsPage() {
         <ProductSearchFilters />
 
         {/* Product Table */}
-        <ProductTable />
+        <ProductTable products={products} loading={loading} onRefresh={fetchProducts} />
 
         {/* Add Product Dialog */}
         <AddProductDialog
