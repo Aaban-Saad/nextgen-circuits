@@ -78,7 +78,7 @@ export default function ContactForm() {
                       className="w-full rounded-none focus:outline-none focus:ring-0"
                       style={{ borderColor: 'var(--border-light)' }}
                       onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
-                      onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
+                      // onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                       {...field}
                     />
                   </FormControl>
@@ -100,7 +100,7 @@ export default function ContactForm() {
                         className="w-full p3 rounded-none"
                         style={{ borderColor: 'var(--border-light)' }}
                         onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
-                        onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
+                        // onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                         {...field}
                       />
                       </FormControl>
@@ -122,7 +122,7 @@ export default function ContactForm() {
                       className="w-full rounded-none focus:outline-none focus:ring-0"
                       style={{ borderColor: 'var(--border-light)' }}
                       onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
-                      onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
+                      // onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                       {...field}
                     />
                   </FormControl>
@@ -171,7 +171,7 @@ export default function ContactForm() {
                       className="w-full h-44 min-h-40 rounded-none focus:outline-none focus:ring-0 resize-vertical"
                       style={{ borderColor: 'var(--border-light)' }}
                       onFocus={(e) => { e.target.style.borderColor = 'var(--accent-cyan)' }}
-                      onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
+                      // onBlur={(e) => { e.target.style.borderColor = 'var(--border-light)' }}
                       {...field}
                     />
                   </FormControl>

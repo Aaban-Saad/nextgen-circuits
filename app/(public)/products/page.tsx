@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 type ProductsPageProps = {
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-export default function ProductsPage({ searchParams }: ProductsPageProps) {
-  const q = typeof searchParams.q === "string" ? searchParams.q : undefined
-  const category = searchParams.category
-  const min = typeof searchParams.min === "string" ? Number(searchParams.min) : undefined
-  const max = typeof searchParams.max === "string" ? Number(searchParams.max) : undefined
-  const rating = typeof searchParams.rating === "string" ? Number(searchParams.rating) : undefined
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const params = await searchParams
+  const q = typeof params.q === "string" ? params.q : undefined
+  const category = params.category
+  const min = typeof params.min === "string" ? Number(params.min) : undefined
+  const max = typeof params.max === "string" ? Number(params.max) : undefined
+  const rating = typeof params.rating === "string" ? Number(params.rating) : undefined
 
   const filtered = filterProducts(MOCK_PRODUCTS, { q, category, min, max, rating })
 
