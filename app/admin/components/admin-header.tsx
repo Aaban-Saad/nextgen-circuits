@@ -1,8 +1,12 @@
 "use client";
 
 import { Search, Bell, User, RefreshCw, Download } from "lucide-react";
+import { useAuth } from "@/lib/supabase/use-auth";
 
 export function AdminHeader() {
+  const { user } = useAuth();
+  console.log("AdminHeader user:", user);
+
   return (
     <div className="admin-header-wrapper">
       <div className="search-bar">
@@ -11,16 +15,16 @@ export function AdminHeader() {
       </div>
 
       <div className="topbar-actions">
-        <button className="notification-btn">
+        {/* <button className="notification-btn">
           <Bell size={20} />
           <span className="notification-count">3</span>
-        </button>
+        </button> */}
 
         <div className="admin-profile">
           <div className="size-9 rounded-full bg-gray-200 flex items-center justify-center">
-            <User className="size-5 text-gray-600" />
+            <img src={user?.user_metadata?.picture} alt="Admin Avatar" className="rounded-full" />
           </div>
-          <span className="admin-name text-sm font-medium text-gray-700 ml-2">Admin Name</span>
+          <span className="admin-name text-sm font-medium text-gray-700 ml-2">{user?.user_metadata?.full_name}</span>
         </div>
 
         <button

@@ -152,7 +152,7 @@ export default function Footer() {
         {/* Footer Bottom */}
         <div className="footer-bottom border-t border-gray-800 py-6">
           <div className="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
-            <div className="payment-methods flex items-center space-x-4">
+            {/* <div className="payment-methods flex items-center space-x-4">
               <span className="text-gray-300 text-sm">Payment Methods:</span>
               <div className="flex space-x-2">
                 <Image src="/assets/images/payment/bkash.png" alt="bKash" width={40} height={24} />
@@ -161,10 +161,15 @@ export default function Footer() {
                 <Image src="/assets/images/payment/visa.png" alt="Visa" width={40} height={24} />
                 <Image src="/assets/images/payment/mastercard.png" alt="Mastercard" width={40} height={24} />
               </div>
+            </div> */}
+            <div className="copyright">
+              <p className="text-gray-400 text-sm">
+                &copy; {new Date().getFullYear()} Nextgen Circuits. All Rights Reserved.
+              </p>
             </div>
             <div className="copyright">
               <p className="text-gray-400 text-sm">
-                &copy; 2023 Nextgen Circuits. All Rights Reserved.
+                Developed by <a href="https://chatpoka.com" target="_blank" className="hover:text-white">Chatpoka Technologies</a>
               </p>
             </div>
           </div>

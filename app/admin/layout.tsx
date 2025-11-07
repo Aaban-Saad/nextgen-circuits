@@ -5,6 +5,7 @@ import { AdminSidebar } from "./components/admin-sidebar";
 import "./globals.css";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { isAdmin } from "@/lib/supabase/role-access-control";
 
 export default function AdminLayout({
   children,
@@ -12,13 +13,18 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
 
-  const { user, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login') // Redirect to login if not authenticated
     }
+
+    if (!loading && user && profile && !isAdmin(profile)) {
+      router.push('/') // Redirect if not authorized
+    }
+
   }, [user, loading, router])
 
   if (loading) {
@@ -33,14 +39,17 @@ export default function AdminLayout({
     return null // Will redirect
   }
 
-  return (
-    <div className="admin-body admin-container">
-      <AdminSidebar />
-      <main className="admin-main">
-        <div className="admin-content">
-          {children}
-        </div>
-      </main>
-    </div>
-  );
+
+  if (user && profile && isAdmin(profile)) {
+    return (
+      <div className="admin-body admin-container">
+        <AdminSidebar />
+        <main className="admin-main">
+          <div className="admin-content">
+            {children}
+          </div>
+        </main>
+      </div>
+    );
+  }
 }
