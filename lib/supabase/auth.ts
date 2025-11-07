@@ -4,13 +4,20 @@ export async function login() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      }
     }
   })
 
   if (error) {
     console.error('Error logging in:', error)
+    throw error
   }
+  
+  return data
 }
 
 export async function handleAuthCallback() {
@@ -72,5 +79,9 @@ export async function logout() {
   
   if (error) {
     console.error('Error logging out:', error)
+    throw error
   }
+  
+  // Redirect to home after logout
+  window.location.href = '/'
 }
