@@ -1,10 +1,26 @@
+'use client';
+
 import { Tag, Box, TrendingUp, Calendar, RefreshCw, Plus } from "lucide-react";
 import { ProductStatsCard } from "../components/product-stats-card";
 import { CategoryTable } from "../components/category-table";
 import { CategorySearchBar } from "../components/category-search-bar";
 import { AdminHeader } from "../components/admin-header";
+import { CreateCategoryDialog, CategoryFormData } from "../components/create-category-dialog";
+import { useState } from "react";
 
 export default function CategoriesPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleCreateCategory = (categoryData: CategoryFormData) => {
+    console.log('Creating category:', categoryData);
+    // TODO: Add your API call here to create the category
+    // Example:
+    // await createCategory(categoryData);
+    
+    setIsDialogOpen(false);
+    // TODO: Refresh the category list
+  };
+
   return (
     <>
       <div className="admin-topbar">
@@ -22,7 +38,10 @@ export default function CategoriesPage() {
               <RefreshCw size={16} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
-            <button className="products-action-btn px-3 sm:px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors">
+            <button 
+              onClick={() => setIsDialogOpen(true)}
+              className="products-action-btn px-3 sm:px-4 py-2 bg-[#3498db] hover:bg-[#2980b9] text-white rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors"
+            >
               <Plus size={16} />
               <span className="hidden sm:inline">Add New Category</span>
               <span className="sm:hidden">Add</span>
@@ -74,6 +93,13 @@ export default function CategoriesPage() {
         {/* Category Table */}
         <CategoryTable />
       </div>
+
+      {/* Create Category Dialog */}
+      <CreateCategoryDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleCreateCategory}
+      />
     </>
   );
 }

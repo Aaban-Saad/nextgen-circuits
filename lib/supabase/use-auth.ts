@@ -20,48 +20,91 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (error) {
-      console.error('Error fetching profile:', error)
+      if (error) {
+        console.error('Error fetching profile:', error)
+        return null
+      }
+
+      return data
+    } catch (error) {
+      console.error('Unexpected error fetching profile:', error)
       return null
     }
-
-    return data
   }
 
   useEffect(() => {
+    let mounted = true
+
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        const userProfile = await fetchProfile(session.user.id)
-        setProfile(userProfile)
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (!mounted) return
+
+        if (error) {
+          console.error('Error getting session:', error)
+          setUser(null)
+          setProfile(null)
+          return
+        }
+
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          const userProfile = await fetchProfile(session.user.id)
+          if (mounted) {
+            setProfile(userProfile)
+          }
+        }
+      } catch (error) {
+        console.error('Unexpected error in auth initialization:', error)
+        if (mounted) {
+          setUser(null)
+          setProfile(null)
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
       }
-      
-      setLoading(false)
-    })
+    }
+
+    initializeAuth()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return
+
       setUser(session?.user ?? null)
       
       if (session?.user) {
         const userProfile = await fetchProfile(session.user.id)
-        setProfile(userProfile)
+        if (mounted) {
+          setProfile(userProfile)
+        }
       } else {
-        setProfile(null)
+        if (mounted) {
+          setProfile(null)
+        }
       }
       
-      setLoading(false)
+      if (mounted) {
+        setLoading(false)
+      }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   return { user, profile, loading }
