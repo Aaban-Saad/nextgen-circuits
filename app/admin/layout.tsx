@@ -25,7 +25,7 @@ export default function AdminLayout({
       router.push('/') // Redirect if not authorized
     }
 
-  }, [user, loading, router])
+  }, [user, profile, loading, router])
 
   if (loading) {
     return (
