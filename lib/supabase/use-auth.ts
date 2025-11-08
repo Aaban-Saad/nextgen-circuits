@@ -42,24 +42,24 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true
 
-    // Get initial session
+    // Get initial user with token validation
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
+        const { data: { user }, error } = await supabase.auth.getUser()
         
         if (!mounted) return
 
         if (error) {
-          console.error('Error getting session:', error)
+          console.error('Error getting user:', error)
           setUser(null)
           setProfile(null)
           return
         }
 
-        setUser(session?.user ?? null)
+        setUser(user)
         
-        if (session?.user) {
-          const userProfile = await fetchProfile(session.user.id)
+        if (user) {
+          const userProfile = await fetchProfile(user.id)
           if (mounted) {
             setProfile(userProfile)
           }
@@ -94,10 +94,6 @@ export function useAuth() {
         if (mounted) {
           setProfile(null)
         }
-      }
-      
-      if (mounted) {
-        setLoading(false)
       }
     })
 
