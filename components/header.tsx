@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
-import { useAuth } from "@/lib/supabase/use-auth";
+import { useUser } from "@/hooks/use-user";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user } = useUser();
   const [cartCount] = useState(0);
   const pathname = usePathname();
 

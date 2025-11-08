@@ -1,10 +1,10 @@
 "use client";
 
 import { Search, Bell, User, RefreshCw, Download } from "lucide-react";
-import { useAuth } from "@/lib/supabase/use-auth";
+import { useUser } from "@/hooks/use-user";
 
 export function AdminHeader() {
-  const { user } = useAuth();
+  const { user } = useUser();
   console.log("AdminHeader user:", user);
 
   return (

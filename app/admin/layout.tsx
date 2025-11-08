@@ -1,11 +1,12 @@
 'use client';
 
-import { useAuth } from "@/lib/supabase/use-auth";
+import { useUser } from "@/hooks/use-user";
 import { AdminSidebar } from "./components/admin-sidebar";
 import "./globals.css";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { isAdmin } from "@/lib/supabase/role-access-control";
+import { useState } from "react";
 
 export default function AdminLayout({
   children,
@@ -13,34 +14,42 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
 
-  const { user, profile, loading } = useAuth()
+  const { user, isLoading } = useUser()
   const router = useRouter()
 
+
+  const [isAdminUser, setIsAdminUser] = useState<boolean | null>(null);
+
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login') // Redirect to login if not authenticated
-    }
+    const checkAdmin = async () => {
+      if (!isLoading && !user) {
+        router.push('/login');
+        return;
+      }
+      if (!isLoading && user) {
+        const admin = await isAdmin(user);
+        setIsAdminUser(admin);
+        if (!admin) {
+          router.push('/');
+        }
+      }
+    };
+    checkAdmin();
+  }, [user, isLoading, router]);
 
-    if (!loading && user && profile && !isAdmin(profile)) {
-      router.push('/') // Redirect if not authorized
-    }
-
-  }, [user, profile, loading, router])
-
-  if (loading) {
+  if (isLoading || isAdminUser === null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading...</p>
       </div>
-    )
+    );
   }
 
-  if (!user) {
-    return null // Will redirect
+  if (!user || !isAdminUser) {
+    return null; // Will redirect
   }
 
-
-  if (user && profile && isAdmin(profile)) {
+  if (user && isAdminUser) {
     return (
       <div className="admin-body admin-container">
         <AdminSidebar />
