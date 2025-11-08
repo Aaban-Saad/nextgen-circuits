@@ -9,7 +9,7 @@ export interface UserProfile {
   email: string
   full_name: string | null
   avatar_url: string | null
-  role: 'user' | 'admin' | 'manager'
+  role: 'user' | 'admin' | 'moderator'
   created_at: string
   updated_at: string
 }
