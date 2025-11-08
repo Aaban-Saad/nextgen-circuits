@@ -9,7 +9,7 @@ import { AdminHeader } from "../components/admin-header"
 import { AddProductDialog, ProductFormData } from "../components/add-product-dialog"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase/supabase-client"
-import { useAuth } from "@/lib/supabase/use-auth"
+import { useUser } from "@/hooks/use-user"
 import { toast } from "sonner"
 import { isAdmin } from "@/lib/supabase/role-access-control"
 
@@ -32,7 +32,7 @@ export default function ProductsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const { user, profile } = useAuth()
+  const { user } = useUser()
 
   const fetchProducts = async () => {
     try {
@@ -62,7 +62,7 @@ export default function ProductsPage() {
 
     try {
       // Check if user is admin
-      if (!isAdmin(profile)) {
+      if (!isAdmin(user)) {
         toast.error("Only admins can add products")
         setIsSubmitting(false)
         return
@@ -136,7 +136,7 @@ export default function ProductsPage() {
               size="sm"
               className="gap-2 bg-[#3498db] hover:bg-[#2980b9]"
               onClick={() => setIsDialogOpen(true)}
-              disabled={profile?.role !== 'admin'}
+              disabled={!isAdmin(user)}
             >
               <Plus size={16} />
               <span className="hidden sm:inline">Add New Product</span>

@@ -25,7 +25,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Product } from '../products/page'
 import { supabase } from '@/lib/supabase/supabase-client'
 import { toast } from 'sonner'
-import { useAuth } from '@/lib/supabase/use-auth'
+import { useUser } from '@/hooks/use-user'
 import { isAdmin } from '@/lib/supabase/role-access-control'
 
 interface EditProductDialogProps {
@@ -36,7 +36,7 @@ interface EditProductDialogProps {
 }
 
 export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditProductDialogProps) {
-  const { profile } = useAuth()
+  const { user } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: product.name,
@@ -72,7 +72,7 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
     setIsSubmitting(true)
 
     try {
-      if (!isAdmin(profile)) {
+      if (!isAdmin(user)) {
         toast.error("Only admins can edit products")
         return
       }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { use, useState } from 'react'
 import { Trash2, Loader2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,7 +14,7 @@ import {
 import { Product } from '../products/page'
 import { supabase } from '@/lib/supabase/supabase-client'
 import { toast } from 'sonner'
-import { useAuth } from '@/lib/supabase/use-auth'
+import { useUser } from '@/hooks/use-user'
 import { isAdmin } from '@/lib/supabase/role-access-control'
 
 interface DeleteProductDialogProps {
@@ -25,14 +25,14 @@ interface DeleteProductDialogProps {
 }
 
 export function DeleteProductDialog({ product, isOpen, onClose, onSuccess }: DeleteProductDialogProps) {
-  const { profile } = useAuth()
+  const { user } = useUser()
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async () => {
     setIsDeleting(true)
 
     try {
-      if (!isAdmin(profile)) {
+      if (!isAdmin(user)) {
         toast.error("Only admins can delete products")
         return
       }
