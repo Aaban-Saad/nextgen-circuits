@@ -1,6 +1,7 @@
 "use client";
 
-import { Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,157 +11,160 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Category } from "../categories/page";
+import { EditCategoryDialog } from "./edit-category-dialog";
+import { DeleteCategoryDialog } from "./delete-category-dialog";
+import { ViewCategoryDialog } from "./view-category-dialog";
 
-const categories = [
-  {
-    id: "dev-boards",
-    name: "Development Boards",
-    icon: "Deve",
-    description: "Microcontroller and processor developme...",
-    products: 45,
-    createdDate: "2023-01-15",
-    status: "ACTIVE",
-  },
-  {
-    id: "resistors",
-    name: "Resistors",
-    icon: "Resis",
-    description: "Various resistors for electronic circuits",
-    products: 32,
-    createdDate: "2023-01-20",
-    status: "ACTIVE",
-  },
-  {
-    id: "capacitors",
-    name: "Capacitors",
-    icon: "Capa",
-    description: "Different types of capacitors for electronic...",
-    products: 28,
-    createdDate: "2023-01-25",
-    status: "ACTIVE",
-  },
-  {
-    id: "ics",
-    name: "Integrated Circuits",
-    icon: "Integ",
-    description: "Various ICs for different applications",
-    products: 56,
-    createdDate: "2023-02-05",
-    status: "ACTIVE",
-  },
-  {
-    id: "transistors",
-    name: "Transistors",
-    icon: "Trans",
-    description: "Different types of transistors for electroni...",
-    products: 18,
-    createdDate: "2023-02-10",
-    status: "ACTIVE",
-  },
-  {
-    id: "sensors",
-    name: "Sensors",
-    icon: "Sens",
-    description: "Various sensors for detecting environmen...",
-    products: 37,
-    createdDate: "2023-02-15",
-    status: "ACTIVE",
-  },
-  {
-    id: "leds",
-    name: "LEDs",
-    icon: "LEDs",
-    description: "Light-emitting diodes of various colors an...",
-    products: 22,
-    createdDate: "2023-02-20",
-    status: "ACTIVE",
-  },
-  {
-    id: "connectors",
-    name: "Connectors",
-    icon: "Conn",
-    description: "Various connectors for electronic projects",
-    products: 15,
-    createdDate: "2023-03-01",
-    status: "ACTIVE",
-  },
-  {
-    id: "power-supplies",
-    name: "Power Supplies",
-    icon: "Powe",
-    description: "Power supply modules and components",
-    products: 12,
-    createdDate: "2023-03-10",
-    status: "ACTIVE",
-  },
-  {
-    id: "tools",
-    name: "Tools",
-    icon: "Tools",
-    description: "Tools for electronics work and soldering",
-    products: 24,
-    createdDate: "2023-03-15",
-    status: "ACTIVE",
-  },
-];
+interface CategoryTableProps {
+  categories: Category[];
+  loading: boolean;
+  onRefresh: () => void;
+}
 
-export function CategoryTable() {
+export function CategoryTable({ categories, loading, onRefresh }: CategoryTableProps) {
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [viewingCategory, setViewingCategory] = useState<Category | null>(null);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getCategoryIcon = (name: string) => {
+    return name.charAt(0).toUpperCase() + name.slice(1, 4);
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden p-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3498db]"></div>
+          <span className="ml-3 text-gray-600">Loading categories...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden p-8">
+        <div className="text-center text-gray-500">
+          <p className="text-lg font-medium">No categories found</p>
+          <p className="text-sm mt-1">Add your first category to get started</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold text-gray-700">Category</TableHead>
-            <TableHead className="font-semibold text-gray-700">Products</TableHead>
-            <TableHead className="font-semibold text-gray-700">Created Date</TableHead>
-            <TableHead className="font-semibold text-gray-700">Status</TableHead>
-            <TableHead className="font-semibold text-gray-700 text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {categories.map((category) => (
-            <TableRow key={category.id} className="hover:bg-gray-50">
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-lg bg-[#3498db] text-white flex items-center justify-center font-semibold text-xs">
-                    {category.icon}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{category.name}</div>
-                    <div className="text-sm text-gray-500">{category.description}</div>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="text-gray-700 font-medium">
-                {category.products}
-              </TableCell>
-              <TableCell className="text-gray-700">{category.createdDate}</TableCell>
-              <TableCell>
-                <Badge className="bg-green-500 text-white">{category.status}</Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Edit"
-                    aria-label="Edit category"
-                  >
-                    <Edit size={16} className="text-gray-600" />
-                  </button>
-                  <button
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Delete"
-                    aria-label="Delete category"
-                  >
-                    <Trash2 size={16} className="text-red-600" />
-                  </button>
-                </div>
-              </TableCell>
+    <>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead className="font-semibold text-gray-700">Category</TableHead>
+              <TableHead className="font-semibold text-gray-700">Products</TableHead>
+              <TableHead className="font-semibold text-gray-700">Created Date</TableHead>
+              <TableHead className="font-semibold text-gray-700">Status</TableHead>
+              <TableHead className="font-semibold text-gray-700 text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {categories.map((category) => (
+              <TableRow key={category.id} className="hover:bg-gray-50">
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-lg bg-[#3498db] text-white flex items-center justify-center font-semibold text-xs">
+                      {getCategoryIcon(category.name)}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">{category.name}</div>
+                      <div className="text-sm text-gray-500">{category.description}</div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-gray-700 font-medium">
+                  {/* TODO: Calculate actual product count */}
+                  0
+                </TableCell>
+                <TableCell className="text-gray-700">{formatDate(category.created_at)}</TableCell>
+                <TableCell>
+                  <Badge className="bg-green-500 text-white">ACTIVE</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="View"
+                      aria-label="View category"
+                      onClick={() => setViewingCategory(category)}
+                    >
+                      <Eye size={16} className="text-blue-600" />
+                    </button>
+                    <button
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Edit"
+                      aria-label="Edit category"
+                      onClick={() => setEditingCategory(category)}
+                    >
+                      <Edit size={16} className="text-gray-600" />
+                    </button>
+                    <button
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete"
+                      aria-label="Delete category"
+                      onClick={() => setDeletingCategory(category)}
+                    >
+                      <Trash2 size={16} className="text-red-600" />
+                    </button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* View Category Dialog */}
+      {viewingCategory && (
+        <ViewCategoryDialog
+          category={viewingCategory}
+          isOpen={!!viewingCategory}
+          onClose={() => setViewingCategory(null)}
+        />
+      )}
+
+      {/* Edit Category Dialog */}
+      {editingCategory && (
+        <EditCategoryDialog
+          category={editingCategory}
+          isOpen={!!editingCategory}
+          onClose={() => setEditingCategory(null)}
+          onSuccess={() => {
+            setEditingCategory(null);
+            onRefresh();
+          }}
+        />
+      )}
+
+      {/* Delete Category Dialog */}
+      {deletingCategory && (
+        <DeleteCategoryDialog
+          category={deletingCategory}
+          isOpen={!!deletingCategory}
+          onClose={() => setDeletingCategory(null)}
+          onSuccess={() => {
+            setDeletingCategory(null);
+            onRefresh();
+          }}
+        />
+      )}
+    </>
   );
 }
 

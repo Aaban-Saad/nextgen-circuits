@@ -61,16 +61,16 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-2xl">Product Details</DialogTitle>
+            <Badge className={`${status.color} text-white`}>
+              {status.label}
+            </Badge>
+          </div>
+        </DialogHeader>
         <ScrollArea className="h-[80vh] p-6">
 
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-2xl">Product Details</DialogTitle>
-              <Badge className={`${status.color} text-white`}>
-                {status.label}
-              </Badge>
-            </div>
-          </DialogHeader>
 
           <div className="space-y-6">
             {/* Product Image Gallery */}
@@ -84,7 +84,7 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  
+
                   {/* Navigation Arrows */}
                   {images.length > 1 && (
                     <>
@@ -104,7 +104,7 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
                       >
                         <ChevronRight size={24} />
                       </Button>
-                      
+
                       {/* Image Counter */}
                       <div className="absolute bottom-2 right-2 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
                         {currentImageIndex + 1} / {images.length}
@@ -129,11 +129,10 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
-                      index === currentImageIndex 
-                        ? 'border-blue-500 ring-2 ring-blue-200' 
+                    className={`relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${index === currentImageIndex
+                        ? 'border-blue-500 ring-2 ring-blue-200'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
                     <Image
                       src={image}

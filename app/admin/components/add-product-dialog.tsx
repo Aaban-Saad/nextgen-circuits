@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Loader2, X, Upload, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
+import { getBrowserSupabaseClient } from '@/lib/supabase/browser'
 
 interface AddProductDialogProps {
   isOpen: boolean
@@ -42,6 +43,8 @@ export interface ProductFormData {
 }
 
 export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = false }: AddProductDialogProps) {
+  const supabase = getBrowserSupabaseClient()
+  
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -55,6 +58,19 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData | 'images', string>>>({})
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from('categories').select('id, name')
+      if (error) {
+        console.error('Error fetching categories:', error)
+      } else {
+        setCategories(data || [])
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const validateForm = () => {
     const newErrors: Partial<Record<keyof ProductFormData | 'images', string>> = {}
@@ -198,12 +214,11 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="microcontrollers">Microcontrollers</SelectItem>
-                    <SelectItem value="sensors">Sensors</SelectItem>
-                    <SelectItem value="displays">Displays</SelectItem>
-                    <SelectItem value="power-supplies">Power Supplies</SelectItem>
-                    <SelectItem value="components">Components</SelectItem>
-                    <SelectItem value="tools">Tools</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}

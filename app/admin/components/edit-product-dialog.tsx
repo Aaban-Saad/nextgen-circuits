@@ -54,6 +54,7 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
   const [newImageFiles, setNewImageFiles] = useState<File[]>([])
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({})
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([])
 
   // Reset form when product changes
   useEffect(() => {
@@ -71,6 +72,18 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
     setNewImagePreviews([])
     setErrors({})
   }, [product])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from('categories').select('id, name')
+      if (error) {
+        console.error('Error fetching categories:', error)
+      } else {
+        setCategories(data || [])
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const validateForm = () => {
     const newErrors: Partial<Record<string, string>> = {}
@@ -283,12 +296,11 @@ export function EditProductDialog({ product, isOpen, onClose, onSuccess }: EditP
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="microcontrollers">Microcontrollers</SelectItem>
-                    <SelectItem value="sensors">Sensors</SelectItem>
-                    <SelectItem value="displays">Displays</SelectItem>
-                    <SelectItem value="power-supplies">Power Supplies</SelectItem>
-                    <SelectItem value="components">Components</SelectItem>
-                    <SelectItem value="tools">Tools</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
