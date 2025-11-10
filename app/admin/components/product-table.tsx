@@ -79,13 +79,14 @@ export function ProductTable({ products, loading, onRefresh }: ProductTableProps
                 <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden sm:table-cell">Category</TableHead>
                 <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Stock</TableHead>
                 <TableHead className="font-semibold text-gray-700 whitespace-nowrap">Price</TableHead>
-                <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden md:table-cell">Status</TableHead>
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden md:table-cell">Stock Status</TableHead>
+                <TableHead className="font-semibold text-gray-700 whitespace-nowrap hidden lg:table-cell">Status</TableHead>
                 <TableHead className="font-semibold text-gray-700 text-right whitespace-nowrap">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.map((product) => {
-                const status = getStockStatus(product.stock)
+                const stockStatus = getStockStatus(product.stock)
                 return (
                   <TableRow key={product.id} className="hover:bg-gray-50">
                     <TableCell className="min-w-[150px]">
@@ -95,9 +96,15 @@ export function ProductTable({ products, loading, onRefresh }: ProductTableProps
                         <div className="text-xs text-gray-600 mt-1 sm:hidden">
                           {formatCategory(product.category)}
                         </div>
-                        <Badge className={`${status.color} text-white text-xs mt-1 md:hidden`}>
-                          {status.label}
-                        </Badge>
+                        {/* Mobile: Show both statuses */}
+                        <div className="flex gap-1 mt-1 md:hidden">
+                          <Badge className={`${stockStatus.color} text-white text-xs`}>
+                            {stockStatus.label}
+                          </Badge>
+                          <Badge className={`${product.is_active ? 'bg-green-500' : 'bg-gray-500'} text-white text-xs`}>
+                            {product.is_active ? 'ACTIVE' : 'INACTIVE'}
+                          </Badge>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="text-gray-700 hidden sm:table-cell">
@@ -112,8 +119,13 @@ export function ProductTable({ products, loading, onRefresh }: ProductTableProps
                       ${product.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      <Badge className={`${status.color} text-white`}>
-                        {status.label}
+                      <Badge className={`${stockStatus.color} text-white`}>
+                        {stockStatus.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      <Badge className={`${product.is_active ? 'bg-green-500' : 'bg-gray-500'} text-white`}>
+                        {product.is_active ? 'ACTIVE' : 'INACTIVE'}
                       </Badge>
                     </TableCell>
                     <TableCell>

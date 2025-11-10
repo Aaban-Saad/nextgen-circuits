@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, X, Upload, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -22,11 +22,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface AddProductDialogProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (product: ProductFormData) => void
+  onSubmit: (product: ProductFormData, imageFiles: File[]) => void
   isSubmitting?: boolean
 }
 
@@ -37,7 +38,7 @@ export interface ProductFormData {
   category: string
   stock: number
   sku: string
-  image_url?: string
+  isActive?: boolean
 }
 
 export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = false }: AddProductDialogProps) {
@@ -48,13 +49,15 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
     category: '',
     stock: 0,
     sku: '',
-    image_url: ''
+    isActive: true,
   })
 
-  const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({})
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData | 'images', string>>>({})
 
   const validateForm = () => {
-    const newErrors: Partial<Record<keyof ProductFormData, string>> = {}
+    const newErrors: Partial<Record<keyof ProductFormData | 'images', string>> = {}
 
     if (!formData.name.trim()) newErrors.name = 'Product name is required'
     if (!formData.description.trim()) newErrors.description = 'Description is required'
@@ -71,12 +74,10 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
     e.preventDefault()
 
     if (validateForm()) {
-      onSubmit(formData)
-      // Don't reset form or close here - let parent handle it
+      onSubmit(formData, imageFiles)
     }
   }
 
-  // Reset form when dialog closes
   const handleClose = () => {
     setFormData({
       name: '',
@@ -85,8 +86,10 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
       category: '',
       stock: 0,
       sku: '',
-      image_url: ''
+      isActive: true,
     })
+    setImageFiles([])
+    setImagePreviews([])
     setErrors({})
     onClose()
   }
@@ -97,17 +100,49 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
       ...prev,
       [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
     }))
-    // Clear error for this field
     if (errors[name as keyof ProductFormData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }))
     }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    
+    if (files.length + imageFiles.length > 5) {
+      setErrors(prev => ({ ...prev, images: 'Maximum 5 images allowed' }))
+      return
+    }
+
+    // Validate file types
+    const validFiles = files.filter(file => {
+      const isImage = file.type.startsWith('image/')
+      const isUnder5MB = file.size <= 5 * 1024 * 1024 // 5MB limit
+      return isImage && isUnder5MB
+    })
+
+    if (validFiles.length !== files.length) {
+      setErrors(prev => ({ ...prev, images: 'Only images under 5MB are allowed' }))
+      return
+    }
+
+    // Create previews
+    const newPreviews = validFiles.map(file => URL.createObjectURL(file))
+    
+    setImageFiles(prev => [...prev, ...validFiles])
+    setImagePreviews(prev => [...prev, ...newPreviews])
+    setErrors(prev => ({ ...prev, images: undefined }))
+  }
+
+  const removeImage = (index: number) => {
+    URL.revokeObjectURL(imagePreviews[index])
+    setImageFiles(prev => prev.filter((_, i) => i !== index))
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
         <ScrollArea className='h-[80vh] w-full'>
-
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
             <DialogDescription>
@@ -227,18 +262,80 @@ export function AddProductDialog({ isOpen, onClose, onSubmit, isSubmitting = fal
               {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
             </div>
 
-            {/* Image URL */}
-            <div className="space-y-2">
-              <Label htmlFor="image_url">Image URL (Optional)</Label>
-              <Input
-                type="url"
-                id="image_url"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
+            {/* Active Status Checkbox */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) => {
+                  setFormData(prev => ({ ...prev, isActive: checked as boolean }))
+                }}
                 disabled={isSubmitting}
               />
+              <Label
+                htmlFor="isActive"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Product is active and available for sale
+              </Label>
+            </div>
+
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="images">Product Images (Max 5)</Label>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    id="images"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    disabled={isSubmitting || imageFiles.length >= 5}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('images')?.click()}
+                    disabled={isSubmitting || imageFiles.length >= 5}
+                    className="gap-2"
+                  >
+                    <Upload size={16} />
+                    Upload Images ({imageFiles.length}/5)
+                  </Button>
+                </div>
+
+                {errors.images && <p className="text-red-500 text-sm">{errors.images}</p>}
+
+                {/* Image Previews */}
+                {imagePreviews.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          disabled={isSubmitting}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={16} />
+                        </button>
+                        {index === 0 && (
+                          <span className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                            Primary
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <DialogFooter>

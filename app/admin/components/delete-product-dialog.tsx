@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Product } from '../products/page'
-import { supabase } from '@/lib/supabase/supabase-client'
+import { getBrowserSupabaseClient } from '@/lib/supabase/browser'
 import { toast } from 'sonner'
 import { useUser } from '@/hooks/use-user'
 import { isAdmin } from '@/lib/supabase/role-access-control'
@@ -25,6 +25,8 @@ interface DeleteProductDialogProps {
 }
 
 export function DeleteProductDialog({ product, isOpen, onClose, onSuccess }: DeleteProductDialogProps) {
+  const supabase = getBrowserSupabaseClient()
+
   const { user } = useUser()
   const [isDeleting, setIsDeleting] = useState(false)
 

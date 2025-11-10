@@ -1,6 +1,7 @@
 'use client'
 
-import { X, Package, DollarSign, Layers, Box, Tag, Calendar, User } from 'lucide-react'
+import { useState } from 'react'
+import { X, Package, DollarSign, Layers, Box, Tag, Calendar, User, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Product } from '../products/page'
 import Image from 'next/image'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -19,6 +21,10 @@ interface ViewProductDialogProps {
 }
 
 export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialogProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const images = product.images || []
+  const hasImages = images.length > 0
+
   const getStockStatus = (stock: number) => {
     if (stock === 0) return { label: "OUT OF STOCK", color: "bg-red-500" }
     if (stock < 50) return { label: "LOW STOCK", color: "bg-orange-500" }
@@ -42,6 +48,14 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
     })
   }
 
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length)
+  }
+
+  const previousImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
+  }
+
   const status = getStockStatus(product.stock)
 
   return (
@@ -59,17 +73,45 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
           </DialogHeader>
 
           <div className="space-y-6">
-            {/* Product Image */}
+            {/* Product Image Gallery */}
             <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
-              {product.image_url ? (
-                <Image
-                  src={product.image_url}
-                  alt={product.name}
-                  className="object-cover"
-                  height={300}
-                  width={500}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
+              {hasImages ? (
+                <>
+                  <Image
+                    src={images[currentImageIndex]}
+                    alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                    className="object-cover"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  {images.length > 1 && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+                        onClick={previousImage}
+                      >
+                        <ChevronLeft size={24} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+                        onClick={nextImage}
+                      >
+                        <ChevronRight size={24} />
+                      </Button>
+                      
+                      {/* Image Counter */}
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                        {currentImageIndex + 1} / {images.length}
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center text-gray-400">
@@ -80,6 +122,31 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
               )}
             </div>
 
+            {/* Image Thumbnails */}
+            {images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
+                      index === currentImageIndex 
+                        ? 'border-blue-500 ring-2 ring-blue-200' 
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <Image
+                      src={image}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Product Name & SKU */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
@@ -87,7 +154,7 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 text-blue-600 mb-1">
                   <DollarSign size={18} />
@@ -112,13 +179,13 @@ export function ViewProductDialog({ product, isOpen, onClose }: ViewProductDialo
                 <p className="text-sm font-semibold text-gray-900">{formatCategory(product.category)}</p>
               </div>
 
-              <div className="bg-orange-50 p-4 rounded-lg">
+              {/* <div className="bg-orange-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 text-orange-600 mb-1">
                   <Tag size={18} />
                   <span className="text-sm font-medium">Value</span>
                 </div>
                 <p className="text-lg font-bold text-gray-900">${(product.price * product.stock).toFixed(2)}</p>
-              </div>
+              </div> */}
             </div>
 
             {/* Description */}
