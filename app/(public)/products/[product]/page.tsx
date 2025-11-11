@@ -6,9 +6,9 @@ import ProductTabs from "./components/product-tabs"
 import { getServerSupabaseClient } from '@/lib/supabase/server'
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     product: string
-  }
+  }>
 }
 
 interface Product {
@@ -59,7 +59,8 @@ async function getCategoryName(categoryId: string): Promise<string> {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.product)
+  const { product: productSku } = await params
+  const product = await getProduct(productSku)
 
   if (!product) {
     notFound()
@@ -144,7 +145,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const product = await getProduct(params.product)
+  const { product: productSku } = await params
+  const product = await getProduct(productSku)
 
   if (!product) {
     return {
