@@ -1,53 +1,64 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import type { ProductImage } from "../data";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { useState } from 'react'
+import Image from 'next/image'
 
-export default function ImageGallery({ images }: { images: ProductImage[] }) {
-  const [index, setIndex] = useState(0);
-  const active = images[index] ?? images[0];
+interface ImageGalleryProps {
+  images: string[]
+  name: string
+}
+
+export default function ImageGallery({ images, name }: ImageGalleryProps) {
+  const [selectedImage, setSelectedImage] = useState(0)
+
+  // Default placeholder if no images
+  const displayImages = images.length > 0 ? images : ['/placeholder-product.jpg']
 
   return (
-    <div>
-      <Card className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-white flex items-center justify-center">
+    <div className="space-y-4">
+      {/* Main Image */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
         <Image
-          src={active.url}
-          alt={active.alt}
+          src={displayImages[selectedImage]}
+          alt={`${name} - Image ${selectedImage + 1}`}
           fill
-          sizes="(max-width: 1024px) 100vw, 50vw"
           className="object-contain"
-          unoptimized
+          priority
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
-      </Card>
-      <div className="mt-4 flex gap-4 overflow-x-auto">
-        {images.map((img, i) => (
-          <Button
-            key={img.url}
-            type="button"
-            variant="outline"
-            onClick={() => setIndex(i)}
-            className={
-              "h-20 w-28 flex-none p-0 rounded-lg overflow-hidden " +
-              (i === index ? "border-primary" : "border-primary/20 hover:border-primary")
-            }
-            aria-label={`Thumbnail ${i + 1}`}
-          >
-            <Image
-              src={img.url}
-              alt={img.alt}
-              width={112}
-              height={80}
-              className="h-full w-full object-cover"
-              unoptimized
-            />
-          </Button>
-        ))}
       </div>
+
+      {/* Thumbnail Images */}
+      {displayImages.length > 1 && (
+        <div className="grid grid-cols-4 gap-4">
+          {displayImages.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedImage(index)}
+              className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${
+                selectedImage === index
+                  ? 'border-primary ring-2 ring-primary ring-offset-2'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <Image
+                src={image}
+                alt={`${name} - Thumbnail ${index + 1}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 25vw, 12.5vw"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Image Counter */}
+      <p className="text-center text-sm text-gray-500">
+        {selectedImage + 1} / {displayImages.length}
+      </p>
     </div>
-  );
+  )
 }
 
 

@@ -1,35 +1,26 @@
-import Link from "next/link";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import Link from 'next/link'
 
-export default function Breadcrumbs({ current }: { current: string }) {
+interface BreadcrumbsProps {
+  category: string
+  current: string
+}
+
+export default function Breadcrumbs({ category, current }: BreadcrumbsProps) {
   return (
-    <Breadcrumb className="mb-6">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/" className="text-primary">Home</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/categories/digital-ics" className="text-primary">Digital ICs</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage className="text-gray-800">{current}</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
+    <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+      <Link href="/" className="hover:text-primary transition-colors">
+        Home
+      </Link>
+      <span>/</span>
+      <Link href="/products" className="hover:text-primary transition-colors">
+        Products
+      </Link>
+      <span>/</span>
+      <span className="hover:text-primary transition-colors">{category}</span>
+      <span>/</span>
+      <span className="text-gray-900 font-medium">{current}</span>
+    </nav>
+  )
 }
 
 

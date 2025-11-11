@@ -70,7 +70,7 @@ export function CategoryTable({ categories, loading, onRefresh }: CategoryTableP
               <TableHead className="font-semibold text-gray-700">Category</TableHead>
               <TableHead className="font-semibold text-gray-700">Products</TableHead>
               <TableHead className="font-semibold text-gray-700">Created Date</TableHead>
-              <TableHead className="font-semibold text-gray-700">Status</TableHead>
+              {/* <TableHead className="font-semibold text-gray-700">Status</TableHead> */}
               <TableHead className="font-semibold text-gray-700 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -93,9 +93,9 @@ export function CategoryTable({ categories, loading, onRefresh }: CategoryTableP
                   0
                 </TableCell>
                 <TableCell className="text-gray-700">{formatDate(category.created_at)}</TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <Badge className="bg-green-500 text-white">ACTIVE</Badge>
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   <div className="flex items-center justify-end gap-2">
                     <button

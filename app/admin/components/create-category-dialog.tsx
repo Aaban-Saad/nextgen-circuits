@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+// import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CreateCategoryDialogProps {
@@ -157,7 +157,7 @@ export function CreateCategoryDialog({ isOpen, onClose, onSubmit, isSubmitting =
             </div>
 
             {/* Active Status */}
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="isActive"
                 checked={formData.isActive}
@@ -172,7 +172,7 @@ export function CreateCategoryDialog({ isOpen, onClose, onSubmit, isSubmitting =
               >
                 Active (visible to customers)
               </Label>
-            </div>
+            </div> */}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>

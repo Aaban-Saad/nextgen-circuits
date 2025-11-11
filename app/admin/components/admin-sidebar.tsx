@@ -18,6 +18,7 @@ import {
   Settings,
   Menu,
   X,
+  Boxes,
 } from "lucide-react";
 
 const menuItems = [
@@ -36,6 +37,7 @@ const menuItems = [
     items: [
       { title: "Products", url: "/admin/products", icon: Box },
       { title: "Categories", url: "/admin/categories", icon: Folder },
+      { title: "Category Groups", url: "/admin/category-groups", icon: Boxes },
       { title: "Orders", url: "/admin/orders", icon: ShoppingCart },
       { title: "Inventory", url: "/admin/inventory", icon: Warehouse },
       { title: "Customers", url: "/admin/customers", icon: Users },
