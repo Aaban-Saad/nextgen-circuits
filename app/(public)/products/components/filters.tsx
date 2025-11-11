@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { debounce } from "@/lib/utils"
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser"
@@ -15,52 +16,135 @@ interface Category {
   name: string
 }
 
-function useSetParam() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const params = useSearchParams()
-
-  return (key: string, value?: string | null) => {
-    const newParams = new URLSearchParams(params?.toString())
-    if (value === undefined || value === null || value === "") {
-      newParams.delete(key)
-    } else {
-      newParams.set(key, value)
-    }
-    router.replace(`${pathname}?${newParams.toString()}`)
-  }
+interface FilterState {
+  min: string
+  max: string
+  categories: string[]
+  stock: string
+  rating: string
 }
 
-function useToggleArrayParam(key: string) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const params = useSearchParams()
-  return (value: string) => {
-    const newParams = new URLSearchParams(params?.toString())
-    const current = newParams.getAll(key)
-    const exists = current.includes(value)
-    const next = exists ? current.filter((v) => v !== value) : [...current, value]
-    newParams.delete(key)
-    next.forEach((v) => newParams.append(key, v))
-    router.replace(`${pathname}?${newParams.toString()}`)
-  }
+const STORAGE_KEY = "product_filters"
+
+// Helper to get current filters from localStorage
+const getStoredFilters = (): FilterState => {
+  if (typeof window === 'undefined') return { min: "", max: "", categories: [], stock: "", rating: "" }
+  const stored = localStorage.getItem(STORAGE_KEY)
+  return stored ? JSON.parse(stored) : { min: "", max: "", categories: [], stock: "", rating: "" }
+}
+
+// Helper to update localStorage with partial state
+const updateStoredFilters = (updates: Partial<FilterState>) => {
+  const current = getStoredFilters()
+  const updated = { ...current, ...updates }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+  // Trigger a custom event to notify listeners
+  window.dispatchEvent(new Event('filtersUpdated'))
 }
 
 export default function Filters() {
+  const router = useRouter()
+  const pathname = usePathname()
   const params = useSearchParams()
-  const setParam = useSetParam()
-  const toggleCategory = useToggleArrayParam("category")
   const supabase = getBrowserSupabaseClient()
 
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
 
-  const activeCategories = useMemo(() => params.getAll("category"), [params])
+  // Local state for all filters
+  const [minValue, setMinValue] = useState("")
+  const [maxValue, setMaxValue] = useState("")
+  
+  const hasInitialized = useRef(false)
+  const [filterTrigger, setFilterTrigger] = useState(0)
 
-  // Local state for debounced inputs
-  const [searchValue, setSearchValue] = useState(params.get("q") ?? "")
-  const [minValue, setMinValue] = useState(params.get("min") ?? "")
-  const [maxValue, setMaxValue] = useState(params.get("max") ?? "")
+  // Initialize from localStorage or URL params on first mount
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      // Initialize localStorage with empty values
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+        min: "", 
+        max: "", 
+        categories: [], 
+        stock: "", 
+        rating: "" 
+      }))
+      
+      // Load from URL params
+      const urlMin = params.get("min") ?? ""
+      const urlMax = params.get("max") ?? ""
+      const urlCategories = params.getAll("category")
+      const urlStock = params.get("stock") ?? ""
+      const urlRating = params.get("rating") ?? ""
+      
+      // Set local state
+      setMinValue(urlMin)
+      setMaxValue(urlMax)
+      
+      // Save all to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+        min: urlMin, 
+        max: urlMax, 
+        categories: urlCategories, 
+        stock: urlStock, 
+        rating: urlRating 
+      }))
+      
+      hasInitialized.current = true
+    }
+  }, [params])
+
+  // Listen for localStorage changes and update URL
+  useEffect(() => {
+    const handleFiltersUpdate = () => {
+      setFilterTrigger(prev => prev + 1)
+    }
+
+    window.addEventListener('filtersUpdated', handleFiltersUpdate)
+    return () => window.removeEventListener('filtersUpdated', handleFiltersUpdate)
+  }, [])
+
+  // Sync localStorage to URL params
+  useEffect(() => {
+    if (!hasInitialized.current) return
+
+    const filters = getStoredFilters()
+    const newParams = new URLSearchParams(params?.toString())
+    
+    // Update min
+    if (filters.min) {
+      newParams.set("min", filters.min)
+    } else {
+      newParams.delete("min")
+    }
+    
+    // Update max
+    if (filters.max) {
+      newParams.set("max", filters.max)
+    } else {
+      newParams.delete("max")
+    }
+    
+    // Update categories
+    newParams.delete("category")
+    filters.categories.forEach((cat) => newParams.append("category", cat))
+    
+    // Update stock
+    if (filters.stock) {
+      newParams.set("stock", filters.stock)
+    } else {
+      newParams.delete("stock")
+    }
+    
+    // Update rating
+    if (filters.rating) {
+      newParams.set("rating", filters.rating)
+    } else {
+      newParams.delete("rating")
+    }
+    
+    router.replace(`${pathname}?${newParams.toString()}`)
+  }, [filterTrigger, pathname, router, params])
 
   // Fetch categories from Supabase
   useEffect(() => {
@@ -83,64 +167,76 @@ export default function Filters() {
     fetchCategories()
   }, [supabase])
 
-  // Sync local state with URL params when they change externally
-  useEffect(() => {
-    setSearchValue(params.get("q") ?? "")
-    setMinValue(params.get("min") ?? "")
-    setMaxValue(params.get("max") ?? "")
-  }, [params])
+  // Debounced functions for price filters
+  const debouncedSetMin = useRef(
+    debounce((value: string) => {
+      updateStoredFilters({ min: value })
+    }, 500)
+  ).current
 
-  // Create debounced functions
-  const debouncedSetSearchRef = useRef(
-    debounce((value: string) => setParam("q", value || null), 300)
-  )
-  const debouncedSetMinRef = useRef(
-    debounce((value: string) => setParam("min", value || null), 300)
-  )
-  const debouncedSetMaxRef = useRef(
-    debounce((value: string) => setParam("max", value || null), 300)
-  )
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
-    setSearchValue(value)
-    debouncedSetSearchRef.current(value)
-  }
+  const debouncedSetMax = useRef(
+    debounce((value: string) => {
+      updateStoredFilters({ max: value })
+    }, 500)
+  ).current
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
     setMinValue(value)
-    debouncedSetMinRef.current(value)
+    debouncedSetMin(value)
   }
 
   const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
     setMaxValue(value)
-    debouncedSetMaxRef.current(value)
+    debouncedSetMax(value)
+  }
+
+  const toggleCategory = (categoryId: string) => {
+    const current = params.getAll("category")
+    const exists = current.includes(categoryId)
+    const next = exists ? current.filter((v) => v !== categoryId) : [...current, categoryId]
+    
+    // Update localStorage
+    updateStoredFilters({ categories: next })
+  }
+
+  const handleStockChange = (value: string) => {
+    const stockValue = value === "clear" ? "" : value
+    
+    // Update localStorage
+    updateStoredFilters({ stock: stockValue })
+  }
+
+  const handleRatingChange = (value: string) => {
+    const ratingValue = value === "clear" ? "" : value
+    
+    // Update localStorage
+    updateStoredFilters({ rating: ratingValue })
   }
 
   const handleReset = () => {
-    const url = new URL(window.location.href)
-    url.search = ""
-    window.history.replaceState(null, "", url.toString())
-    setSearchValue("")
+    // Clear localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+      min: "", 
+      max: "", 
+      categories: [], 
+      stock: "", 
+      rating: "" 
+    }))
+    
+    // Clear local state
     setMinValue("")
     setMaxValue("")
+    
+    // Trigger update
+    window.dispatchEvent(new Event('filtersUpdated'))
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Search */}
-      <div className="space-y-2">
-        <Label htmlFor="q">Search Products</Label>
-        <Input
-          id="q"
-          placeholder="Search by name or SKU..."
-          value={searchValue}
-          onChange={handleSearchChange}
-        />
-      </div>
+  const activeCategories = useMemo(() => params.getAll("category"), [params])
 
+  return (
+    <div className="space-y-2">
       {/* Categories */}
       <div className="space-y-3">
         <p className="text-sm font-medium">Category</p>
@@ -155,19 +251,19 @@ export default function Filters() {
             {categories.map((cat) => {
               const checked = activeCategories.includes(cat.id)
               return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => toggleCategory(cat.id)}
-                  className={`w-full text-left rounded-md border px-3 py-2 text-sm transition ${
-                    checked 
-                      ? "border-primary bg-primary/5 text-primary font-medium" 
-                      : "hover:border-primary/50 hover:bg-gray-50"
-                  }`}
-                  aria-pressed={checked}
-                >
-                  {cat.name}
-                </button>
+                <div key={cat.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`category-${cat.id}`}
+                    checked={checked}
+                    onCheckedChange={() => toggleCategory(cat.id)}
+                  />
+                  <label
+                    htmlFor={`category-${cat.id}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    {cat.name}
+                  </label>
+                </div>
               )
             })}
           </div>
@@ -182,22 +278,56 @@ export default function Filters() {
             <Label htmlFor="min" className="text-xs">Min</Label>
             <Input
               id="min"
-              type="number"
+              type="text"
               inputMode="numeric"
-              placeholder="0"
+              placeholder="Min price"
               value={minValue}
               onChange={handleMinChange}
+              onKeyDown={(e) => {
+                // Allow: backspace, delete, tab, escape, enter, decimal point
+                if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                  // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                  (e.keyCode === 65 && e.ctrlKey === true) ||
+                  (e.keyCode === 67 && e.ctrlKey === true) ||
+                  (e.keyCode === 86 && e.ctrlKey === true) ||
+                  (e.keyCode === 88 && e.ctrlKey === true) ||
+                  // Allow: home, end, left, right
+                  (e.keyCode >= 35 && e.keyCode <= 39)) {
+                  return
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                  e.preventDefault()
+                }
+              }}
             />
           </div>
           <div>
             <Label htmlFor="max" className="text-xs">Max</Label>
             <Input
               id="max"
-              type="number"
+              type="text"
               inputMode="numeric"
-              placeholder="10000"
+              placeholder="Max price"
               value={maxValue}
               onChange={handleMaxChange}
+              onKeyDown={(e) => {
+                // Allow: backspace, delete, tab, escape, enter, decimal point
+                if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                  // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                  (e.keyCode === 65 && e.ctrlKey === true) ||
+                  (e.keyCode === 67 && e.ctrlKey === true) ||
+                  (e.keyCode === 86 && e.ctrlKey === true) ||
+                  (e.keyCode === 88 && e.ctrlKey === true) ||
+                  // Allow: home, end, left, right
+                  (e.keyCode >= 35 && e.keyCode <= 39)) {
+                  return
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                  e.preventDefault()
+                }
+              }}
             />
           </div>
         </div>
@@ -208,13 +338,7 @@ export default function Filters() {
         <Label>Stock Status</Label>
         <Select
           value={params.get("stock") ?? undefined}
-          onValueChange={(v) => {
-            if (v === "clear") {
-              setParam("stock", null)
-            } else {
-              setParam("stock", v)
-            }
-          }}
+          onValueChange={handleStockChange}
         >
           <SelectTrigger>
             <SelectValue placeholder="Any" />
@@ -233,13 +357,7 @@ export default function Filters() {
         <Label>Minimum Rating</Label>
         <Select
           value={params.get("rating") ?? undefined}
-          onValueChange={(v) => {
-            if (v === "clear") {
-              setParam("rating", null)
-            } else {
-              setParam("rating", v)
-            }
-          }}
+          onValueChange={handleRatingChange}
         >
           <SelectTrigger>
             <SelectValue placeholder="Any" />

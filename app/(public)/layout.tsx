@@ -11,8 +11,8 @@ export default function PublicLayout({
     <>
       {/* <ScrollArea className="h-screen"> */}
       <Header />
-        {children}
-        <Footer />
+      {children}
+      <Footer />
       {/* </ScrollArea> */}
     </>
   );

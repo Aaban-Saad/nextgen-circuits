@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
 interface SearchParams {
   q?: string
@@ -46,8 +48,8 @@ async function getProducts(searchParams: SearchParams) {
 
   // Category filter
   if (searchParams.category) {
-    const categories = Array.isArray(searchParams.category) 
-      ? searchParams.category 
+    const categories = Array.isArray(searchParams.category)
+      ? searchParams.category
       : [searchParams.category]
     query = query.in('category', categories)
   }
@@ -109,38 +111,35 @@ async function getProducts(searchParams: SearchParams) {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }) {
-  const products = await getProducts(searchParams)
+  const params = await searchParams
+  const products = await getProducts(params)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-2">Browse our collection of electronic components</p>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <aside className="w-full lg:w-64 flex-shrink-0">
-            <div className="sticky top-4 bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold mb-4">Filters</h2>
-              <Filters />
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4">
+        {/* Search Bar - Top */}
+        <div className="mb-4 px-0 sticky top-16 bg-background z-10 py-4">
+          <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>
+            <div className='flex-1'>
+              <form className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  name="q"
+                  type="search"
+                  placeholder="Search products by name or SKU..."
+                  defaultValue={params.q}
+                  className="pl-10 h-12 text-base bg-card w-full"
+                />
+              </form>
             </div>
-          </aside>
 
-          {/* Products Grid */}
-          <main className="flex-1">
-            {/* Sort and Results Count */}
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <p className="text-sm text-gray-600">
-                {products.length} {products.length === 1 ? 'product' : 'products'} found
-              </p>
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Sort by:</span>
-                <Select defaultValue={searchParams.sort || 'newest'}>
-                  <SelectTrigger className="w-[180px]">
+                <span className="text-sm text-gray-600 hidden sm:inline">Sort:</span>
+                <Select defaultValue={params.sort || 'newest'}>
+                  <SelectTrigger className="w-[160px] h-12">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -153,15 +152,32 @@ export default async function ProductsPage({
                 </Select>
               </div>
             </div>
+          </div>
 
-            {/* Products Grid */}
+          {/* <div className="mt-3 flex justify-end">
+            <span className="text-sm text-gray-600">
+              {products.length} {products.length === 1 ? 'product' : 'products'}
+            </span>
+          </div> */}
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Filters Sidebar */}
+          <aside className="w-full lg:w-64 shrink-0">
+            <div className="sticky top-4 bg-card rounded-lg shadow-sm p-4">
+              <Filters />
+            </div>
+          </aside>
+
+          {/* Products Grid */}
+          <main className="flex-1">
             {products.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <div className="bg-card rounded-lg shadow-sm p-12 text-center">
                 <p className="text-gray-500 text-lg">No products found</p>
                 <p className="text-gray-400 text-sm mt-2">Try adjusting your filters</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

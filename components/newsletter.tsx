@@ -16,7 +16,7 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="newsletter py-16 bg-blue-600">
+    <section className="newsletter py-16 bg-primary">
       <div className="container mx-auto px-6">
         <motion.div 
           className="newsletter-content text-center max-w-2xl mx-auto"
