@@ -3,124 +3,85 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { getBrowserSupabaseClient } from '@/lib/supabase/browser';
+import { supabase } from '@/lib/supabase/supabase-client';
 
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
-const categoriesData = [
-  {
-    id: 'microcontrollers',
-    title: 'Microcontrollers',
-    description: 'Programmable integrated circuits that serve as the brain of electronic projects',
-    subcategories: [
-      {
-        title: 'Arduino',
-        description: 'Open-source electronics platform based on easy-to-use hardware and software',
-        image: '/assets/images/categories/arduino.jpg'
-      },
-      {
-        title: 'Raspberry Pi',
-        description: 'Small single-board computers developed to promote teaching of basic computer science',
-        image: '/assets/images/categories/raspberry-pi.jpg'
-      },
-      {
-        title: 'ESP Modules',
-        description: 'Wi-Fi and Bluetooth enabled microcontrollers for IoT applications',
-        image: '/assets/images/categories/esp.jpg'
-      },
-      {
-        title: 'STM32',
-        description: '32-bit flash microcontrollers based on the ARM Cortex-M processor',
-        image: '/assets/images/categories/stm32.jpg'
-      }
-    ]
-  },
-  {
-    id: 'sensors',
-    title: 'Sensors',
-    description: 'Devices that detect events or changes in the environment and send information to other electronics',
-    subcategories: [
-      {
-        title: 'Temperature Sensors',
-        description: 'Measure ambient temperature for environmental monitoring and control systems',
-        image: '/assets/images/categories/temperature-sensors.jpg'
-      },
-      {
-        title: 'Motion Sensors',
-        description: 'Detect movement in their field of view for security and automation applications',
-        image: '/assets/images/categories/motion-sensors.jpg'
-      },
-      {
-        title: 'Ultrasonic Sensors',
-        description: 'Use sound waves to measure distance to objects for robotics and automation',
-        image: '/assets/images/categories/ultrasonic-sensors.jpg'
-      },
-      {
-        title: 'Gas Sensors',
-        description: 'Detect specific gases for safety, environmental monitoring, and industrial applications',
-        image: '/assets/images/categories/gas-sensors.jpg'
-      }
-    ]
-  },
-  {
-    id: 'displays',
-    title: 'Displays',
-    description: 'Visual output devices for showing information and user interfaces',
-    subcategories: [
-      {
-        title: 'LCD Displays',
-        description: 'Liquid Crystal Displays for showing text and simple graphics',
-        image: '/assets/images/categories/lcd.jpg'
-      },
-      {
-        title: 'OLED Displays',
-        description: 'Organic Light-Emitting Diode displays with high contrast and low power consumption',
-        image: '/assets/images/categories/oled.png'
-      },
-      {
-        title: 'TFT Displays',
-        description: 'Thin-Film Transistor displays for high-quality color graphics',
-        image: '/assets/images/categories/tft.jpg'
-      },
-      {
-        title: 'E-Paper Displays',
-        description: 'Electronic paper technology that mimics the appearance of ordinary ink on paper',
-        image: '/assets/images/categories/e-paper.png'
-      }
-    ]
-  },
-  {
-    id: 'components',
-    title: 'Components',
-    description: 'Basic electronic parts for building and prototyping circuits',
-    subcategories: [
-      {
-        title: 'Resistors',
-        description: 'Passive components that implement electrical resistance in electronic circuits',
-        image: '/assets/images/categories/resistors.jpg'
-      },
-      {
-        title: 'Capacitors',
-        description: 'Store and release electrical energy in electronic circuits',
-        image: '/assets/images/categories/capacitors.jpg'
-      },
-      {
-        title: 'Transistors',
-        description: 'Semiconductor devices used to amplify or switch electronic signals',
-        image: '/assets/images/categories/transistors.jpg'
-      },
-      {
-        title: 'Integrated Circuits',
-        description: 'Microchips that contain thousands to millions of electronic components',
-        image: '/assets/images/categories/ics.jpg'
-      }
-    ]
-  }
-];
+interface CategoryGroup {
+  id: string;
+  name: string;
+  description: string;
+  category_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
 
-// ...existing code...
+interface CategoryData {
+  id: string;
+  title: string;
+  description: string;
+  subcategories: Category[];
+}
 
 export default function CategoriesComponent() {
+  const [categoriesData, setCategoriesData] = useState<CategoryData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = getBrowserSupabaseClient();
+
+  useEffect(() => {
+    async function fetchCategoriesData() {
+      try {
+        // Fetch all category groups
+        const { data: categoryGroups, error: groupsError } = await supabase
+          .from('category_groups')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (groupsError) throw groupsError;
+
+        // Fetch all categories
+        const { data: categories, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*');
+
+        if (categoriesError) throw categoriesError;
+
+        // Map category groups with their categories
+        const mappedData: CategoryData[] = (categoryGroups || []).map((group: CategoryGroup) => {
+          const groupCategories = (categories || []).filter((cat: Category) =>
+            group.category_ids.includes(cat.id)
+          );
+
+          return {
+            id: group.id,
+            title: group.name,
+            description: group.description,
+            subcategories: groupCategories,
+          };
+        });
+
+        setCategoriesData(mappedData);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Failed to load categories');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCategoriesData();
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -141,44 +102,61 @@ export default function CategoriesComponent() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Loading categories...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg text-destructive">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
+      <main>
+        <div className="min-h-screen bg-background">
+          {/* Page Title Section */}
+          <motion.div
+            className='bg-linear-to-r from-primary/30 to-accent/30 py-12 mb-12'
+            initial={{ opacity: 0, y: -50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <div className="container mx-auto px-4 py-4">
+              <motion.h1
+                className="text-4xl lg:text-5xl font-bold mb-4 text-center text-secondary"
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                Product Categories
+              </motion.h1>
+              <motion.p
+                className="text-center text-lg text-muted-foreground max-w-2xl mx-auto"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                viewport={{ once: true }}
+              >
+                Explore our wide range of products across various categories.
+              </motion.p>
+            </div>
+          </motion.div>
 
-        {/* <Header /> */}
-        <main>
-          <div className="min-h-screen bg-background">
-            {/* Page Title Section */}
-            <motion.div
-              className='bg-linear-to-r from-primary/30 to-accent/30 py-12 mb-12'
-              initial={{ opacity: 0, y: -50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <div className="container mx-auto px-4 py-4">
-                <motion.h1
-                  className="text-4xl lg:text-5xl font-bold mb-4 text-center text-secondary"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  viewport={{ once: true }}
-                >
-                  Product Categories
-                </motion.h1>
-                <motion.p
-                  className="text-center text-lg text-muted-foreground max-w-2xl mx-auto"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                  viewport={{ once: true }}
-                >
-                  Explore our wide range of products across various categories.
-                </motion.p>
-              </div>
-            </motion.div>
-
-            {/* Categories Section */}
-            <div className="container mx-auto px-4 py-12">
+          {/* Categories Section */}
+          <div className="container mx-auto px-4 py-12">
+            {categoriesData.length === 0 ? (
+              <p className="text-center text-muted-foreground">No categories available.</p>
+            ) : (
               <motion.div
                 className="space-y-16"
                 variants={containerVariants}
@@ -223,27 +201,21 @@ export default function CategoriesComponent() {
                       whileInView="visible"
                       viewport={{ once: true }}
                     >
-                      {category.subcategories.map((subcategory, index) => (
+                      {category.subcategories.map((subcategory) => (
                         <motion.div
-                          key={index}
+                          key={subcategory.id}
                           variants={cardVariants}
                         >
                           <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="aspect-video overflow-hidden bg-muted">
-                              <Image
-                                src={subcategory.image}
-                                alt={subcategory.title}
-                                width={400}
-                                height={225}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                              />
+                            <div className="aspect-video overflow-hidden bg-muted flex items-center justify-center">
+                              <span className="text-muted-foreground">No Image</span>
                             </div>
                             <CardHeader>
-                              <CardTitle className="text-xl">{subcategory.title}</CardTitle>
+                              <CardTitle className="text-xl">{subcategory.name}</CardTitle>
                             </CardHeader>
                             <CardContent>
                               <CardDescription className="text-sm">
-                                {subcategory.description}
+                                {subcategory.description || 'No description available'}
                               </CardDescription>
                             </CardContent>
                             <CardFooter>
@@ -258,9 +230,10 @@ export default function CategoriesComponent() {
                   </motion.div>
                 ))}
               </motion.div>
-            </div>
+            )}
           </div>
-        </main>
+        </div>
+      </main>
     </div>
   );
 }

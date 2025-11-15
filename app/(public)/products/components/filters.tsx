@@ -271,7 +271,7 @@ export default function Filters() {
       </div>
 
       {/* Price Range */}
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <p className="text-sm font-medium">Price Range (৳ BDT)</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -331,7 +331,7 @@ export default function Filters() {
             />
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Stock Status */}
       <div className="space-y-2">

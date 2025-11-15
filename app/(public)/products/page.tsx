@@ -164,7 +164,7 @@ export default async function ProductsPage({
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Filters Sidebar */}
           <aside className="w-full lg:w-64 shrink-0">
-            <div className="sticky top-4 bg-card rounded-lg shadow-sm p-4">
+            <div className="sticky top-36 bg-card rounded-lg shadow-sm p-4">
               <Filters />
             </div>
           </aside>
