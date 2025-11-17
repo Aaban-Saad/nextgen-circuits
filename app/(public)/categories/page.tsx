@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { getBrowserSupabaseClient } from '@/lib/supabase/browser';
-import { supabase } from '@/lib/supabase/supabase-client';
 
 interface Category {
   id: string;
@@ -14,6 +13,7 @@ interface Category {
   description: string | null;
   created_at: string;
   updated_at: string;
+  preview_image?: string | null;
 }
 
 interface CategoryGroup {
@@ -56,9 +56,52 @@ export default function CategoriesComponent() {
 
         if (categoriesError) throw categoriesError;
 
+        console.log('Fetched categories:', categories);
+
+        // Fetch first product image for each category
+        const categoriesWithImages = await Promise.all(
+          (categories || []).map(async (cat: Category) => {
+            console.log('Looking for products with category:', cat.name);
+            
+            // Try exact match first
+            let { data: products, error: productsError } = await supabase
+              .from('products')
+              .select('images, category')
+              .eq('category', cat.id)
+              .eq('is_active', true)
+              .limit(10);
+
+            if (productsError) {
+              console.error('Error fetching products for category', cat.name, productsError);
+            }
+
+            console.log('Fetched products for category', cat.name, ':', products);
+            console.log('Number of products found:', products?.length || 0);
+
+            // Filter products that actually have images
+            const productsWithImages = products?.filter(p => 
+              p.images && Array.isArray(p.images) && p.images.length > 0
+            ) || [];
+
+            console.log('Products with images for', cat.name, ':', productsWithImages.length);
+
+            // Get the first image from the first product's images array
+            const previewImage = productsWithImages[0]?.images?.[0] || null;
+
+            console.log('Preview image for', cat.name, ':', previewImage);
+
+            return {
+              ...cat,
+              preview_image: previewImage,
+            };
+          })
+        );
+
+        console.log('Categories with images:', categoriesWithImages);
+
         // Map category groups with their categories
         const mappedData: CategoryData[] = (categoryGroups || []).map((group: CategoryGroup) => {
-          const groupCategories = (categories || []).filter((cat: Category) =>
+          const groupCategories = categoriesWithImages.filter((cat: Category) =>
             group.category_ids.includes(cat.id)
           );
 
@@ -175,7 +218,7 @@ export default function CategoriesComponent() {
                     <div className="mb-8">
                       <motion.h2
                         className="text-3xl font-bold mb-2 text-center"
-                        initial={{ opacity: 0, x: -50 }}
+                        initial={{ opacity: 0, x: 0 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
@@ -207,8 +250,20 @@ export default function CategoriesComponent() {
                           variants={cardVariants}
                         >
                           <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="aspect-video overflow-hidden bg-muted flex items-center justify-center">
-                              <span className="text-muted-foreground">No Image</span>
+                            <div className="aspect-video overflow-hidden bg-muted relative">
+                              {subcategory.preview_image ? (
+                                <Image
+                                  src={subcategory.preview_image}
+                                  alt={subcategory.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="text-muted-foreground">No Image</span>
+                                </div>
+                              )}
                             </div>
                             <CardHeader>
                               <CardTitle className="text-xl">{subcategory.name}</CardTitle>

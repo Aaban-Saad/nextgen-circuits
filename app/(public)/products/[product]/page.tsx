@@ -3,7 +3,9 @@ import Breadcrumbs from "./components/breadcrumbs"
 import ImageGallery from "./components/image-gallery"
 import ProductActions from "./components/product-actions"
 import ProductTabs from "./components/product-tabs"
+import AddToWishlistButton from "./components/add-to-wishlist-button"
 import { getServerSupabaseClient } from '@/lib/supabase/server'
+import { checkWishlistStatus } from '@/lib/actions/wishlist'
 
 interface ProductPageProps {
   params: Promise<{
@@ -67,6 +69,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const categoryName = await getCategoryName(product.category)
+  const { inWishlist } = await checkWishlistStatus(product.id)
 
   return (
     <div className="min-h-screen">
@@ -89,12 +92,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
                 {product.name}
               </h1>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 text-primary hover:text-primary/80"
-              >
-                <span className="i-ph-heart-light" aria-hidden /> Add to Wishlist
-              </button>
+              <AddToWishlistButton 
+                productId={product.id} 
+                initialInWishlist={inWishlist}
+              />
             </div>
             <p className="text-sm text-gray-500 mb-6">
               Product ID: <span className="font-medium">{product.sku}</span>

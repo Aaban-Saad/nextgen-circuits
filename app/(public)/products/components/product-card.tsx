@@ -61,8 +61,8 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   // Use first image or placeholder
-  const imageUrl = product.images && product.images.length > 0 
-    ? product.images[0] 
+  const imageUrl = product.images && product.images.length > 0
+    ? product.images[0]
     : '/placeholder-product.jpg'
 
   return (
@@ -88,28 +88,28 @@ export default function ProductCard({ product }: { product: Product }) {
               </div>
             )}
           </div>
-        </Link>
-        <div className="px-4 pt-4">
-          <Link href={`/products/${product.sku}`} className="block hover:text-primary transition-colors">
-            <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
-              {product.name}
-            </h3>
-          </Link>
-          <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p>
-          <div className="mt-2 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-gray-900">৳{product.price.toFixed(2)}</span>
-              <span className="text-xs text-gray-500">BDT</span>
+          <div className="px-4 pt-4">
+            {/* <Link href={`/products/${product.sku}`} className="block hover:text-primary transition-colors"> */}
+              <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
+                {product.name}
+              </h3>
+            {/* </Link> */}
+            <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p>
+            <div className="mt-2 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900">৳{product.price.toFixed(2)}</span>
+                <span className="text-xs text-gray-500">BDT</span>
+              </div>
+              {/* TODO: Add rating from reviews when implemented */}
+              <Stars rating={4} />
             </div>
-            {/* TODO: Add rating from reviews when implemented */}
-            <Stars rating={4} />
           </div>
-        </div>
+        </Link>
       </CardContent>
       <CardFooter className="pt-0 px-4 pb-4">
-        <Button 
-          size="sm" 
-          className="w-full gap-2" 
+        <Button
+          size="sm"
+          className="w-full gap-2"
           onClick={handleAddToCart}
           disabled={product.stock === 0 || isAddingToCart}
         >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Edit, Trash2, Eye } from "lucide-react";
 import {
   Table,
@@ -15,6 +15,7 @@ import { Category } from "../categories/page";
 import { EditCategoryDialog } from "./edit-category-dialog";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import { ViewCategoryDialog } from "./view-category-dialog";
+import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 interface CategoryTableProps {
   categories: Category[];
@@ -26,6 +27,31 @@ export function CategoryTable({ categories, loading, onRefresh }: CategoryTableP
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [viewingCategory, setViewingCategory] = useState<Category | null>(null);
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+  const supabase = getBrowserSupabaseClient();
+
+  useEffect(() => {
+    const fetchProductCounts = async () => {
+      if (categories.length === 0) return;
+
+      const counts: Record<string, number> = {};
+      
+      for (const category of categories) {
+        const { count, error } = await supabase
+          .from('products')
+          .select('*', { count: 'exact', head: true })
+          .eq('category', category.id);
+        
+        if (!error && count !== null) {
+          counts[category.id] = count;
+        }
+      }
+      
+      setProductCounts(counts);
+    };
+
+    fetchProductCounts();
+  }, [categories, supabase]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -89,8 +115,7 @@ export function CategoryTable({ categories, loading, onRefresh }: CategoryTableP
                   </div>
                 </TableCell>
                 <TableCell className="text-gray-700 font-medium">
-                  {/* TODO: Calculate actual product count */}
-                  0
+                  {productCounts[category.id] ?? 0}
                 </TableCell>
                 <TableCell className="text-gray-700">{formatDate(category.created_at)}</TableCell>
                 {/* <TableCell>
