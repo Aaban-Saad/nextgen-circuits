@@ -79,7 +79,7 @@ export default function CategoriesComponent() {
             console.log('Number of products found:', products?.length || 0);
 
             // Filter products that actually have images
-            const productsWithImages = products?.filter(p => 
+            const productsWithImages = products?.filter((p: any) => 
               p.images && Array.isArray(p.images) && p.images.length > 0
             ) || [];
 
