@@ -1,15 +1,9 @@
 import { getServerSupabaseClient } from '@/lib/supabase/server'
 import ProductCard from './components/product-card'
 import Filters from './components/filters'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import SortSelect from './components/sort-select'
 
 interface SearchParams {
   q?: string
@@ -138,27 +132,10 @@ export default async function ProductsPage({
             <div className="flex items-center gap-3 sm:gap-4 shrink-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 hidden sm:inline">Sort:</span>
-                <Select defaultValue={params.sort || 'newest'}>
-                  <SelectTrigger className="w-[160px] h-12">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">Newest</SelectItem>
-                    <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                    <SelectItem value="price_desc">Price: High to Low</SelectItem>
-                    <SelectItem value="name_asc">Name: A to Z</SelectItem>
-                    <SelectItem value="name_desc">Name: Z to A</SelectItem>
-                  </SelectContent>
-                </Select>
+                <SortSelect defaultValue={params.sort || 'newest'} />
               </div>
             </div>
           </div>
-
-          {/* <div className="mt-3 flex justify-end">
-            <span className="text-sm text-gray-600">
-              {products.length} {products.length === 1 ? 'product' : 'products'}
-            </span>
-          </div> */}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4">
@@ -189,5 +166,3 @@ export default async function ProductsPage({
     </div>
   )
 }
-
-
