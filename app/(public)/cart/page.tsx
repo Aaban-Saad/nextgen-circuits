@@ -69,7 +69,7 @@ export default async function CartPage() {
 
           {/* Cart Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4">
+            <div className="sticky top-20">
               <CartSummary subtotal={total} itemCount={items.length} />
             </div>
           </div>
