@@ -9,9 +9,9 @@ interface CartSummaryProps {
 }
 
 export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
-  const shipping = subtotal > 0 ? 100 : 0 // Flat shipping rate
+  // const shipping = subtotal > 0 ? 100 : 0 // Flat shipping rate
   const tax = subtotal * 0 // No tax for now
-  const total = subtotal + shipping + tax
+  // const total = subtotal + shipping + tax
 
   return (
     <Card>
@@ -24,12 +24,12 @@ export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
           <span className="font-medium">৳{subtotal.toFixed(2)}</span>
         </div>
         
-        <div className="flex justify-between text-sm">
+        {/* <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Shipping</span>
           <span className="font-medium">
             {shipping === 0 ? 'Free' : `৳${shipping.toFixed(2)}`}
           </span>
-        </div>
+        </div> */}
 
         {tax > 0 && (
           <div className="flex justify-between text-sm">
@@ -42,7 +42,7 @@ export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
 
         <div className="flex justify-between text-lg font-semibold">
           <span>Total</span>
-          <span>৳{total.toFixed(2)}</span>
+          {/* <span>৳{total.toFixed(2)}</span> */}
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-2">

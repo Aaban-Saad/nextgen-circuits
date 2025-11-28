@@ -116,7 +116,10 @@ export async function getCartItems() {
     return sum + (item.product.price * item.quantity)
   }, 0)
 
+
   return { items, total }
+
+
 }
 
 export async function updateCartQuantity(cartItemId: string, quantity: number) {

@@ -1,18 +1,36 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { CheckoutForm } from './components/checkout-form'
 import { getCartItems } from '@/lib/actions/cart'
 import { redirect } from 'next/navigation'
-import { CheckoutForm } from './components/checkout-form'
+import { Truck } from 'lucide-react'
 
-export const metadata = {
-  title: 'Checkout | NextGen Circuits',
-  description: 'Complete your order',
-}
 
-export default async function CheckoutPage() {
-  const { items, total } = await getCartItems()
+export default function CheckoutPage() {
+  const [items, setItems] = useState<any[]>([])
+  const [total, setTotal] = useState(0)
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  if (items.length === 0) {
-    redirect('/cart')
+  useEffect(() => {
+    async function loadCart() {
+      const cart = await getCartItems()
+      if (cart.items.length === 0) {
+        redirect('/cart')
+      }
+      setItems(cart.items)
+      setTotal(cart.total)
+      setLoading(false)
+    }
+    loadCart()
+  }, [])
+
+  if (loading) {
+    return <div>Loading...</div>
   }
+
+  const finalTotal = deliveryFee ? total + deliveryFee : total
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,7 +40,11 @@ export default async function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2">
-            <CheckoutForm items={items} total={total} />
+            <CheckoutForm 
+              items={items} 
+              total={total} 
+              onDeliveryFeeChange={setDeliveryFee}
+            />
           </div>
 
           {/* Order Summary */}
@@ -49,18 +71,30 @@ export default async function CheckoutPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">৳{total.toFixed(2)}</span>
                   </div>
+                  
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Delivery Fee</span>
-                    <span className="font-medium">Calculated at checkout</span>
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Truck className="h-3 w-3" />
+                      Delivery Fee
+                    </span>
+                    <span className="font-medium">
+                      {deliveryFee !== null ? `৳${deliveryFee.toFixed(2)}` : 'Enter address'}
+                      {}
+                    </span>
+                    
                   </div>
+
+                  
                   <div className="border-t pt-2 mt-2">
                     <div className="flex justify-between">
                       <span className="font-semibold">Total</span>
-                      <span className="font-bold text-lg">৳{total.toFixed(2)}</span>
+                      <span className="font-bold text-lg">৳{finalTotal.toFixed(2)}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      + Delivery fee (to be calculated)
-                    </p>
+                    {deliveryFee === null && (
+                      <p className="text-sm  mt-1 text-destructive">
+                        + Delivery fee (enter address to calculate)
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,20 +8,22 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { CreditCard, Wallet, Banknote, AlertCircle } from 'lucide-react'
+import { CreditCard, Wallet, Banknote, AlertCircle, Truck } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { createOrder } from '@/lib/actions/checkout'
+import { createOrder, calculateDeliveryFeePreview } from '@/lib/actions/checkout'
 import { toast } from 'sonner'
 
 interface CheckoutFormProps {
   items: any[]
   total: number
+  onDeliveryFeeChange?: (fee: number | null) => void
 }
 
-export function CheckoutForm({ items, total }: CheckoutFormProps) {
+export function CheckoutForm({ items, total, onDeliveryFeeChange }: CheckoutFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash' | 'nagad'>('cod')
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null)
 
   const [formData, setFormData] = useState({
     recipient_name: '',
@@ -35,6 +37,24 @@ export function CheckoutForm({ items, total }: CheckoutFormProps) {
     nagad_number: '',
     nagad_transaction_id: '',
   })
+
+  // Calculate delivery fee when address changes
+  useEffect(() => {
+    const calculateFee = async () => {
+      if (formData.recipient_address.length >= 10) {
+        const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 1), 0)
+        const fee = await calculateDeliveryFeePreview(formData.recipient_address, totalQuantity)
+        setDeliveryFee(fee)
+        onDeliveryFeeChange?.(fee)
+      } else {
+        setDeliveryFee(null)
+        onDeliveryFeeChange?.(null)
+      }
+    }
+    
+    const debounce = setTimeout(calculateFee, 500)
+    return () => clearTimeout(debounce)
+  }, [formData.recipient_address, items.length, onDeliveryFeeChange])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -78,7 +98,7 @@ export function CheckoutForm({ items, total }: CheckoutFormProps) {
 
       if (result.success) {
         toast.success('Order placed successfully!')
-        router.push(`/orders/${result.orderId}`)
+        // router.push(`/orders/${result.orderId}`)
       } else {
         toast.error(result.error || 'Failed to place order')
       }
@@ -89,6 +109,9 @@ export function CheckoutForm({ items, total }: CheckoutFormProps) {
       setLoading(false)
     }
   }
+
+  const totalWeight = items.length * 0.05 // 50g per item
+  const finalTotal = deliveryFee ? total + deliveryFee : total
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -164,6 +187,24 @@ export function CheckoutForm({ items, total }: CheckoutFormProps) {
               Please provide complete address (10-220 characters)
             </p>
           </div>
+
+          {/* Delivery Fee Preview */}
+          {/* {deliveryFee !== null && (
+            <Alert>
+              <Truck className="h-4 w-4" />
+              <AlertDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Estimated Delivery Fee</p>
+                    <p className="text-sm text-muted-foreground">
+                      Total weight: {totalWeight.toFixed(2)} kg
+                    </p>
+                  </div>
+                  <p className="text-lg font-bold">৳{deliveryFee}</p>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )} */}
 
           <div>
             <Label htmlFor="special_instruction">
@@ -247,7 +288,7 @@ export function CheckoutForm({ items, total }: CheckoutFormProps) {
                     <ol className="list-decimal list-inside space-y-1 text-sm">
                       <li>Open your bKash app</li>
                       <li>Go to "Send Money"</li>
-                      <li>Send ৳{total.toFixed(2)} to: <strong>01XXXXXXXXX</strong></li>
+                      <li>Send ৳{finalTotal.toFixed(2)} to: <strong>01XXXXXXXXX</strong></li>
                       <li>Enter your bKash account number and Transaction ID below</li>
                     </ol>
                   </div>
@@ -295,7 +336,7 @@ export function CheckoutForm({ items, total }: CheckoutFormProps) {
                     <ol className="list-decimal list-inside space-y-1 text-sm">
                       <li>Open your Nagad app</li>
                       <li>Go to "Send Money"</li>
-                      <li>Send ৳{total.toFixed(2)} to: <strong>01XXXXXXXXX</strong></li>
+                      <li>Send ৳{finalTotal.toFixed(2)} to: <strong>01XXXXXXXXX</strong></li>
                       <li>Enter your Nagad account number and Transaction ID below</li>
                     </ol>
                   </div>

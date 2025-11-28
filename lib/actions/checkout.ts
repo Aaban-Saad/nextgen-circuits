@@ -18,6 +18,22 @@ interface OrderData {
   total: number
 }
 
+function calculateDeliveryFee(weightInKg: number, address: string): number {
+  const isDhaka = address.toLowerCase().includes('dhaka')
+  console.log('Calculating delivery fee for weight:', weightInKg, 'kg to address:', address)
+  
+  if (weightInKg < 0.5) {
+    return isDhaka ? 60 : 110
+  } else if (weightInKg < 1) {
+    return isDhaka ? 70 : 130
+  } else if (weightInKg < 2) {
+    return isDhaka ? 90 : 170
+  } else {
+    // For items >= 2kg, use the highest tier
+    return isDhaka ? 90 : 170
+  }
+}
+
 export async function createOrder(orderData: OrderData) {
   try {
     const supabase = await getServerSupabaseClient()
@@ -29,9 +45,14 @@ export async function createOrder(orderData: OrderData) {
       return { success: false, error: 'Not authenticated' }
     }
 
-    // Calculate total weight and quantity
+    // Calculate total weight and quantity (50g = 0.05kg per item)
     const item_quantity = orderData.items.reduce((sum, item) => sum + item.quantity, 0)
-    const item_weight = orderData.items.reduce((sum, item) => sum + (item.quantity * 0.5), 0) // Assuming 0.5kg per item
+    const item_weight = orderData.items.reduce((sum, item) => sum + (item.quantity * 0.05), 0) // 0.05kg per item
+    
+
+    // Calculate delivery fee
+    const delivery_fee = calculateDeliveryFee(item_weight, orderData.recipient_address)
+    const total_with_delivery = orderData.total + delivery_fee
 
     // Create order in database
     const { data: order, error: orderError } = await supabase
@@ -55,7 +76,8 @@ export async function createOrder(orderData: OrderData) {
           ? orderData.nagad_transaction_id 
           : null,
         subtotal: orderData.total,
-        total: orderData.total, // Will be updated with delivery fee later
+        delivery_fee: delivery_fee,
+        total: total_with_delivery,
         item_quantity,
         item_weight,
         status: 'pending',
@@ -68,13 +90,16 @@ export async function createOrder(orderData: OrderData) {
       return { success: false, error: 'Failed to create order' }
     }
 
-    // Create order items
+    // Create order items with product snapshots
     const orderItems = orderData.items.map(item => ({
       order_id: order.id,
       product_id: item.product.id,
       quantity: item.quantity,
       price: item.product.price,
       subtotal: item.product.price * item.quantity,
+      product_name: item.product.name,
+      product_sku: item.product.sku,
+      product_image: item.product.images?.[0] || null,
     }))
 
     const { error: itemsError } = await supabase
@@ -90,7 +115,7 @@ export async function createOrder(orderData: OrderData) {
 
     // Clear user's cart
     await supabase
-      .from('cart_items')
+      .from('carts')
       .delete()
       .eq('user_id', user.id)
 
@@ -101,9 +126,19 @@ export async function createOrder(orderData: OrderData) {
     revalidatePath('/cart')
     revalidatePath('/orders')
 
-    return { success: true, orderId: order.id }
+    return { 
+      success: true, 
+      orderId: order.id,
+      deliveryFee: delivery_fee,
+      total: total_with_delivery
+    }
   } catch (error) {
     console.error('Checkout error:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
+}
+
+export async function calculateDeliveryFeePreview(address: string, itemCount: number) {
+  const weight = itemCount * 0.05 // 50g per item
+  return calculateDeliveryFee(weight, address)
 }
