@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { getBrowserSupabaseClient } from '@/lib/supabase/browser';
+import Link from 'next/link';
 
 interface Category {
   id: string;
@@ -62,7 +63,7 @@ export default function CategoriesComponent() {
         const categoriesWithImages = await Promise.all(
           (categories || []).map(async (cat: Category) => {
             console.log('Looking for products with category:', cat.name);
-            
+
             // Try exact match first
             let { data: products, error: productsError } = await supabase
               .from('products')
@@ -79,7 +80,7 @@ export default function CategoriesComponent() {
             console.log('Number of products found:', products?.length || 0);
 
             // Filter products that actually have images
-            const productsWithImages = products?.filter((p: any) => 
+            const productsWithImages = products?.filter((p: any) =>
               p.images && Array.isArray(p.images) && p.images.length > 0
             ) || [];
 
@@ -274,8 +275,10 @@ export default function CategoriesComponent() {
                               </CardDescription>
                             </CardContent>
                             <CardFooter>
-                              <Button variant="default" className="w-full">
-                                View Category
+                              <Button asChild variant="default" className="w-full">
+                                <Link href={`/products?category=${subcategory.id}`}>
+                                  View Category
+                                </Link>
                               </Button>
                             </CardFooter>
                           </Card>

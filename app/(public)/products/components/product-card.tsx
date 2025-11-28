@@ -4,9 +4,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, Star } from "lucide-react"
+import { Coins, ShoppingCart, Star } from "lucide-react"
 import { toast } from "sonner"
 import { useState } from "react"
+import { addToCart } from "@/lib/actions/cart"
 
 interface Product {
   id: string
@@ -50,9 +51,16 @@ export default function ProductCard({ product }: { product: Product }) {
 
     setIsAddingToCart(true)
     try {
-      // TODO: Implement cart functionality
+      await addToCart(product.id, 1)
       await new Promise(resolve => setTimeout(resolve, 500))
-      toast.success('Added to cart')
+      toast.success(
+        <div className="flex items-center justify-end gap-4">
+          <span>Added to cart</span>
+          <Button size="sm" asChild>
+        <Link href="/cart">View Cart</Link>
+          </Button>
+        </div>
+      )
     } catch (error) {
       toast.error('Failed to add to cart')
     } finally {
@@ -90,11 +98,11 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
           <div className="px-4 pt-4">
             {/* <Link href={`/products/${product.sku}`} className="block hover:text-primary transition-colors"> */}
-              <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
-                {product.name}
-              </h3>
+            <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
+              {product.name}
+            </h3>
             {/* </Link> */}
-            <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p>
+            {/* <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p> */}
             <div className="mt-2 flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-gray-900">৳{product.price.toFixed(2)}</span>
@@ -106,7 +114,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </Link>
       </CardContent>
-      <CardFooter className="pt-0 px-4 pb-4">
+      <CardFooter className="pt-0 px-4 pb-4 flex flex-col gap-2">
         <Button
           size="sm"
           className="w-full gap-2"
@@ -115,6 +123,21 @@ export default function ProductCard({ product }: { product: Product }) {
         >
           <ShoppingCart size={16} />
           {product.stock === 0 ? 'Out of Stock' : isAddingToCart ? 'Adding...' : 'Add to Cart'}
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="w-full gap-2"
+          onClick={
+            () => {
+              handleAddToCart()
+              window.location.href = '/checkout'
+            }
+          }
+          disabled={product.stock === 0 || isAddingToCart}
+        >
+          <Coins size={16} />
+          {product.stock === 0 ? 'Out of Stock' : isAddingToCart ? 'Adding...' : 'Buy Now'}
         </Button>
       </CardFooter>
     </Card>

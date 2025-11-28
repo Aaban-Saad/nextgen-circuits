@@ -113,6 +113,22 @@ export async function createOrder(orderData: OrderData) {
       return { success: false, error: 'Failed to create order items' }
     }
 
+    // Update product stock quantities
+    for (const item of orderData.items) {
+      const { error: stockError } = await supabase.rpc('decrement_product_stock', {
+        product_id: item.product.id,
+        quantity: item.quantity
+      })
+
+      if (stockError) {
+        console.error('Stock update error:', stockError)
+        // Rollback order and order items
+        await supabase.from('order_items').delete().eq('order_id', order.id)
+        await supabase.from('orders').delete().eq('id', order.id)
+        return { success: false, error: 'Failed to update product stock' }
+      }
+    }
+
     // Clear user's cart
     await supabase
       .from('carts')
@@ -122,9 +138,11 @@ export async function createOrder(orderData: OrderData) {
     // TODO: Create Pathao order via API
     // This would be done in a separate API route or background job
     // const pathaoResponse = await createPathaoOrder(order)
+    // This is done from admin panel after order is created
 
     revalidatePath('/cart')
     revalidatePath('/orders')
+    revalidatePath('/products')
 
     return { 
       success: true, 
