@@ -4,10 +4,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Coins, ShoppingCart, Star } from "lucide-react"
+import { Coins, ShoppingCart } from "lucide-react"
 import { toast } from "sonner"
 import { useState } from "react"
 import { addToCart } from "@/lib/actions/cart"
+import ProductRating from "./product-rating"
 
 interface Product {
   id: string
@@ -19,25 +20,6 @@ interface Product {
   sku: string
   images: string[]
   is_active: boolean
-}
-
-function Stars({ rating }: { rating: number }) {
-  const full = Math.floor(rating)
-  const hasHalf = rating % 1 !== 0
-  const empty = 5 - Math.ceil(rating)
-  return (
-    <div className="flex items-center gap-1">
-      {Array.from({ length: full }).map((_, i) => (
-        <Star key={`f-${i}`} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-      ))}
-      {hasHalf && (
-        <Star className="w-4 h-4 fill-yellow-400/50 text-yellow-400" />
-      )}
-      {Array.from({ length: empty }).map((_, i) => (
-        <Star key={`e-${i}`} className="w-4 h-4 text-gray-300" />
-      ))}
-    </div>
-  )
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -57,7 +39,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="flex items-center justify-end gap-4">
           <span>Added to cart</span>
           <Button size="sm" asChild>
-        <Link href="/cart">View Cart</Link>
+            <Link href="/cart">View Cart</Link>
           </Button>
         </div>
       )
@@ -97,19 +79,15 @@ export default function ProductCard({ product }: { product: Product }) {
             )}
           </div>
           <div className="px-4 pt-4">
-            {/* <Link href={`/products/${product.sku}`} className="block hover:text-primary transition-colors"> */}
             <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
               {product.name}
             </h3>
-            {/* </Link> */}
-            {/* <p className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</p> */}
             <div className="mt-2 flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-gray-900">৳{product.price.toFixed(2)}</span>
                 <span className="text-xs text-gray-500">BDT</span>
               </div>
-              {/* TODO: Add rating from reviews when implemented */}
-              <Stars rating={4} />
+              <ProductRating productId={product.id} />
             </div>
           </div>
         </Link>

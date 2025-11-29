@@ -21,6 +21,7 @@ export default function Header() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchQuery.trim() === "") return;
     router.push(`/products?q=${searchQuery}`);
   }
 

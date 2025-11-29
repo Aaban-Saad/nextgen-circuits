@@ -17,14 +17,14 @@ export default function ImageGallery({ images, name }: ImageGalleryProps) {
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+      <div className="relative aspect-square w-11/12 lg:w-5/6 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
         <Image
           src={displayImages[selectedImage]}
           alt={`${name} - Image ${selectedImage + 1}`}
           fill
           className="object-contain"
           priority
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 768px) 20vw, 20vw"
         />
       </div>
 
