@@ -7,14 +7,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useUser();
   const [cartCount] = useState(0);
   const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
   const isActive = (path: string) => pathname === path;
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/products?q=${searchQuery}`);
+  }
 
   return (
     <header className="header bg-secondary text-secondary-foreground drop-shadow-2xl border-b border-accent/10 sticky top-0 z-50">
@@ -35,11 +43,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/"
-                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
-                    isActive("/")
+                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/")
                       ? "text-secondary-foreground after:scale-x-100"
                       : "text-muted hover:text-secondary-foreground after:scale-x-0 hover:after:scale-x-100"
-                  }`}
+                    }`}
                 >
                   Home
                 </Link>
@@ -47,11 +54,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/products"
-                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
-                    isActive("/products")
+                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/products")
                       ? "text-secondary-foreground after:scale-x-100"
                       : "text-muted hover:text-secondary-foreground after:scale-x-0 hover:after:scale-x-100"
-                  }`}
+                    }`}
                 >
                   Products
                 </Link>
@@ -59,11 +65,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/categories"
-                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
-                    isActive("/categories")
+                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/categories")
                       ? "text-secondary-foreground after:scale-x-100"
                       : "text-muted hover:text-secondary-foreground after:scale-x-0 hover:after:scale-x-100"
-                  }`}
+                    }`}
                 >
                   Categories
                 </Link>
@@ -71,11 +76,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/about"
-                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
-                    isActive("/about")
+                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/about")
                       ? "text-secondary-foreground after:scale-x-100"
                       : "text-muted hover:text-secondary-foreground after:scale-x-0 hover:after:scale-x-100"
-                  }`}
+                    }`}
                 >
                   About Us
                 </Link>
@@ -83,11 +87,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/contact"
-                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${
-                    isActive("/contact")
+                  className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/contact")
                       ? "text-secondary-foreground after:scale-x-100"
                       : "text-muted hover:text-secondary-foreground after:scale-x-0 hover:after:scale-x-100"
-                  }`}
+                    }`}
                 >
                   Contact
                 </Link>
@@ -98,14 +101,17 @@ export default function Header() {
           {/* Header Actions */}
           <div className="header-actions flex items-center gap-4">
             {/* Search Box - Desktop */}
-            <div className="search-box hidden md:flex items-center bg-gray-100 rounded-md px-3 py-2">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="bg-transparent outline-none flex-1 text-sm"
-              />
-              <Search className="w-4 h-4 text-gray-500" />
-            </div>
+            <form action="" onSubmit={handleSearchSubmit}>
+              <div className="search-box hidden md:flex items-center bg-gray-100 rounded-md px-3 py-2">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="bg-transparent outline-none flex-1 text-sm text-black"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Search className="w-4 h-4 text-gray-500" />
+              </div>
+            </form>
 
             {/* User Actions */}
             <div className="user-actions flex items-center gap-2">
@@ -152,11 +158,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/"
-                  className={`block transition-colors ${
-                    isActive("/")
+                  className={`block transition-colors ${isActive("/")
                       ? "text-secondary-foreground font-bold"
                       : "text-muted hover:text-secondary-foreground"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Home
@@ -165,11 +170,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/products"
-                  className={`block transition-colors ${
-                    isActive("/products")
+                  className={`block transition-colors ${isActive("/products")
                       ? "text-secondary-foreground font-bold"
                       : "text-muted hover:text-secondary-foreground"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Products
@@ -178,11 +182,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/categories"
-                  className={`block transition-colors ${
-                    isActive("/categories")
+                  className={`block transition-colors ${isActive("/categories")
                       ? "text-secondary-foreground font-bold"
                       : "text-muted hover:text-secondary-foreground"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Categories
@@ -191,11 +194,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/about"
-                  className={`block transition-colors ${
-                    isActive("/about")
+                  className={`block transition-colors ${isActive("/about")
                       ? "text-secondary-foreground font-bold"
                       : "text-muted hover:text-secondary-foreground"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   About Us
@@ -204,11 +206,10 @@ export default function Header() {
               <li>
                 <Link
                   href="/contact"
-                  className={`block transition-colors ${
-                    isActive("/contact")
+                  className={`block transition-colors ${isActive("/contact")
                       ? "text-secondary-foreground font-bold"
                       : "text-muted hover:text-secondary-foreground"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Contact
@@ -217,14 +218,17 @@ export default function Header() {
             </ul>
 
             {/* Mobile Search */}
-            <div className="search-box flex items-center bg-gray-100 rounded-md px-3 py-2 mt-4">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="bg-transparent outline-none flex-1 text-sm"
-              />
-              <Search className="w-4 h-4 text-gray-500" />
-            </div>
+            <form action="" onSubmit={handleSearchSubmit}>
+              <div className="search-box flex items-center bg-gray-100 rounded-md px-3 py-2 mt-4">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="bg-transparent outline-none flex-1 text-sm"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Search className="w-4 h-4 text-gray-500" />
+              </div>
+            </form>
           </motion.nav>
         )}
       </div>
