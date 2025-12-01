@@ -158,7 +158,7 @@ export default function FeaturedProducts() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Link href={`/products/${product.sku}`}>
+                <a href={`/products/${product.sku}`}>
                   <div className="relative">
                     {/* Badges */}
                     {hasDiscount && (
@@ -203,7 +203,7 @@ export default function FeaturedProducts() {
                       <ProductRating productId={product.id} />
                     </div>
                   </div>
-                </Link>
+                </a>
                 
                 <div className="px-4 pb-4 flex flex-col gap-2">
                   <Button 

@@ -67,7 +67,7 @@ export function CartItem({ item }: CartItemProps) {
 
   return (
     <div className="py-6 flex gap-4">
-      <div className="relative h-24 w-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+      <div className="relative h-10 w-10 md:h-24 md:w-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
         <Link href={`/products/${item.product.sku}`}>
           <Image
             src={imageUrl}

@@ -82,7 +82,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-200">
       <CardContent className="px-0 pt-0">
-        <Link href={`/products/${product.sku}`} className="block">
+        <a href={`/products/${product.sku}`} className="block">
           <div className="relative aspect-square w-full bg-gray-100 overflow-hidden">
             <Image
               src={imageUrl}
@@ -129,7 +129,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <ProductRating productId={product.id} />
             </div>
           </div>
-        </Link>
+        </a>
       </CardContent>
       <CardFooter className="pt-0 px-4 pb-4 flex flex-col gap-2">
         <Button

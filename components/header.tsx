@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
+import { Search, User, ShoppingCart, Menu, X, Heart } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { useRouter } from "next/navigation";
 
@@ -31,18 +30,18 @@ export default function Header() {
         <div className="header-wrapper flex items-center justify-between py-4">
           {/* Logo */}
           <div className="logo">
-            <Link href="/" className="logo-text text-2xl font-bold">
+            <a href="/" className="logo-text text-md md:text-2xl font-bold">
               <span className="">Next</span>
               <span className="text-accent">Gen </span>
               <span className="">Circuits</span>
-            </Link>
+            </a>
           </div>
 
           {/* Navigation Menu - Desktop */}
           <nav className="nav-menu hidden lg:block">
             <ul className="menu flex items-center space-x-8">
               <li>
-                <Link
+                <a
                   href="/"
                   className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/")
                       ? "text-secondary-foreground after:scale-x-100"
@@ -50,10 +49,10 @@ export default function Header() {
                     }`}
                 >
                   Home
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/products"
                   className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/products")
                       ? "text-secondary-foreground after:scale-x-100"
@@ -61,10 +60,10 @@ export default function Header() {
                     }`}
                 >
                   Products
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/categories"
                   className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/categories")
                       ? "text-secondary-foreground after:scale-x-100"
@@ -72,10 +71,10 @@ export default function Header() {
                     }`}
                 >
                   Categories
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/about"
                   className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/about")
                       ? "text-secondary-foreground after:scale-x-100"
@@ -83,10 +82,10 @@ export default function Header() {
                     }`}
                 >
                   About Us
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/contact"
                   className={`relative inline-block font-bold transition-colors duration-300 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-accent after:w-full after:origin-left after:transition-transform after:duration-300 ${isActive("/contact")
                       ? "text-secondary-foreground after:scale-x-100"
@@ -94,7 +93,7 @@ export default function Header() {
                     }`}
                 >
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
           </nav>
@@ -117,20 +116,26 @@ export default function Header() {
             {/* User Actions */}
             <div className="user-actions flex items-center gap-2">
               <Button variant="ghost" size="sm" asChild>
-                <Link href={user ? "/user" : "/login"}>
+                <a href={user ? "/user" : "/login"}>
                   <User className="w-5 h-5" />
-                </Link>
+                </a>
               </Button>
 
               <Button variant="ghost" size="sm" asChild className="relative">
-                <Link href="/cart">
+                <a href="/cart">
                   <ShoppingCart className="w-5 h-5" />
                   {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
-                </Link>
+                </a>
+              </Button>
+
+              <Button variant="ghost" size="sm" asChild>
+                <a href="/wishlist">
+                  <Heart className="w-5 h-5" />
+                </a>
               </Button>
             </div>
 
@@ -157,7 +162,7 @@ export default function Header() {
           >
             <ul className="space-y-4">
               <li>
-                <Link
+                <a
                   href="/"
                   className={`block transition-colors ${isActive("/")
                       ? "text-secondary-foreground font-bold"
@@ -166,10 +171,10 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Home
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/products"
                   className={`block transition-colors ${isActive("/products")
                       ? "text-secondary-foreground font-bold"
@@ -178,10 +183,10 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Products
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/categories"
                   className={`block transition-colors ${isActive("/categories")
                       ? "text-secondary-foreground font-bold"
@@ -190,10 +195,10 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Categories
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/about"
                   className={`block transition-colors ${isActive("/about")
                       ? "text-secondary-foreground font-bold"
@@ -202,10 +207,10 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   About Us
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/contact"
                   className={`block transition-colors ${isActive("/contact")
                       ? "text-secondary-foreground font-bold"
@@ -214,7 +219,7 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
 
@@ -224,7 +229,7 @@ export default function Header() {
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="bg-transparent outline-none flex-1 text-sm"
+                  className="bg-transparent outline-none flex-1 text-sm text-black"
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Search className="w-4 h-4 text-gray-500" />

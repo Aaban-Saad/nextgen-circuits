@@ -41,12 +41,12 @@ export default async function CartPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2">
-            <div className="bg-card rounded-lg border p-6">
-              <h2 className="text-xl font-semibold mb-4">
+          <div className="lg:col-span-2 min-w-0">
+            <div className="bg-card rounded-lg border p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold mb-4">
                 Cart Items ({items.length})
               </h2>
-              <div className="divide-y">
+              <div className="divide-y overflow-x-auto">
                 {items.map((item) => (
                   <CartItem key={item.id} item={item} />
                 ))}
