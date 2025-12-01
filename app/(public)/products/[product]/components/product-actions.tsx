@@ -5,6 +5,7 @@ import { ShoppingCart, Minus, Plus } from 'lucide-react'
 import { addToCart } from '@/lib/actions/cart'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useUser } from '@/hooks/use-user'
 
 interface ProductActionsProps {
   stock: number
@@ -16,6 +17,7 @@ export default function ProductActions({ stock, productId }: ProductActionsProps
   const [quantity, setQuantity] = useState(1)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const user = useUser().user
 
   const handleAddToCart = async () => {
     if (stock === 0) {
@@ -23,9 +25,15 @@ export default function ProductActions({ stock, productId }: ProductActionsProps
       return
     }
 
+    if (!user) {
+      toast.error('Please log in to add items to your cart')
+      router.push('/login')
+      return
+    }
+
     setLoading(true)
     const result = await addToCart(productId, quantity)
-    
+
     if (result.success) {
       toast.success(`Added ${quantity} item(s) to cart`)
       setQuantity(1) // Reset quantity after successful add
@@ -33,7 +41,7 @@ export default function ProductActions({ stock, productId }: ProductActionsProps
     } else {
       toast.error(result.error || 'Failed to add to cart')
     }
-    
+
     setLoading(false)
   }
 
@@ -53,7 +61,7 @@ export default function ProductActions({ stock, productId }: ProductActionsProps
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col lg:flex-row  items-center gap-4">
         <div className="flex items-center border border-gray-300 rounded-lg">
           <button
             type="button"
@@ -82,10 +90,25 @@ export default function ProductActions({ stock, productId }: ProductActionsProps
           type="button"
           onClick={handleAddToCart}
           disabled={loading || stock === 0}
-          className="flex-1 bg-primary text-white py-3 px-6 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
+          className="w-full flex-1 bg-primary text-white py-3 px-6 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
         >
           <ShoppingCart size={20} />
           {loading ? 'Adding...' : stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+
+        <button
+          type="button"
+          onClick={
+            () => {
+              handleAddToCart()
+              if (user) router.push('/checkout')
+            }
+          }
+          disabled={loading || stock === 0}
+          className="w-full flex-1 bg-secondary text-white py-3 px-6 rounded-lg hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
+        >
+          <ShoppingCart size={20} />
+          {loading ? 'Adding...' : stock === 0 ? 'Out of Stock' : 'Buy Now'}
         </button>
       </div>
 

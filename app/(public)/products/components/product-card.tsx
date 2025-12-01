@@ -9,6 +9,8 @@ import { toast } from "sonner"
 import { useState } from "react"
 import { addToCart } from "@/lib/actions/cart"
 import ProductRating from "./product-rating"
+import { useUser } from "@/hooks/use-user"
+import { useRouter } from "next/navigation"
 
 interface Product {
   id: string
@@ -24,8 +26,16 @@ interface Product {
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const user = useUser().user
+  const router = useRouter()
 
   const handleAddToCart = async () => {
+    if (!user) {
+      toast.error('Please log in to add items to your cart')
+      router.push('/login')
+      return
+    }
+
     if (product.stock === 0) {
       toast.error('Product is out of stock')
       return
@@ -109,7 +119,7 @@ export default function ProductCard({ product }: { product: Product }) {
           onClick={
             () => {
               handleAddToCart()
-              window.location.href = '/checkout'
+              if (user) router.push('/checkout')
             }
           }
           disabled={product.stock === 0 || isAddingToCart}
