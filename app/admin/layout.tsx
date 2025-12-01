@@ -4,18 +4,14 @@ import { useUser } from "@/hooks/use-user";
 import { AdminSidebar } from "./components/admin-sidebar";
 import "./globals.css";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { isAdmin, isManager } from "@/lib/supabase/role-access-control";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-
+// Separate component that uses useSearchParams
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useUser()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -28,13 +24,13 @@ export default function AdminLayout({
     const error = searchParams.get('error')
     if (error === 'access_denied') {
       toast.error("Access Denied", {
+        description: "You don't have permission to access that page.",
+        duration: 5000,
       })
       // Clean up URL without causing a re-render loop
-      const url = new URL(window.location.href)
-      url.searchParams.delete('error')
-      window.history.replaceState({}, '', url.pathname)
+      router.replace('/admin', { scroll: false })
     }
-  }, [searchParams])
+  }, [searchParams, router])
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -74,10 +70,29 @@ export default function AdminLayout({
         <main className="admin-main">
           <div className="admin-content">
             {children}
-            <Toaster />
           </div>
         </main>
+        <Toaster />
       </div>
     );
   }
+
+  return null;
+}
+
+// Main layout wrapper with Suspense
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    }>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </Suspense>
+  );
 }
