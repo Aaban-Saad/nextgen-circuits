@@ -15,8 +15,8 @@ export default function HomePage() {
         <Hero />
         <FeaturedCategories />
         <FeaturedProducts />
-        <WhyChooseUs />
-        <Newsletter />
+        {/* <WhyChooseUs /> */}
+        {/* <Newsletter /> */}
       </main>
     </div>
   );

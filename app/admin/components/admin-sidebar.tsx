@@ -22,6 +22,7 @@ import {
   Tag,
   User2,
   User,
+  PanelsTopLeft,
 } from "lucide-react";
 
 const menuItems = [
@@ -42,17 +43,18 @@ const menuItems = [
       { title: "Categories", url: "/admin/categories", icon: Folder },
       { title: "Category Groups", url: "/admin/category-groups", icon: Boxes },
       { title: "Orders", url: "/admin/orders", icon: ShoppingCart },
-      { title: "Discounts", url: "/admin/discounts", icon: Tag },
       { title: "Customers", url: "/admin/customers", icon: Users },
     ],
   },
-  // {
-  //   title: "CONTENT & MARKETING",
-  //   items: [
-  //     { title: "Content", url: "/admin/content", icon: FileText },
-  //     { title: "Marketing", url: "/admin/marketing", icon: Megaphone },
-  //   ],
-  // },
+  {
+    title: "CONTENT & MARKETING",
+    items: [
+      { title: "Landing Page", url: "/admin/landing-page", icon: PanelsTopLeft },
+      { title: "Content", url: "/admin/content", icon: FileText },
+      { title: "Discounts", url: "/admin/discounts", icon: Tag },
+      { title: "Marketing", url: "/admin/marketing", icon: Megaphone },
+    ],
+  },
   // {
   //   title: "ANALYTICS & SUPPORT",
   //   items: [
