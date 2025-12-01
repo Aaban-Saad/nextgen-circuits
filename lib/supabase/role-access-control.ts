@@ -34,6 +34,6 @@ export const isAdmin = async (user: User | null) => {
   return await hasRole(user, ['admin'])
 }
 
-export const isModerator = async (user: User | null) => {
-  return await hasRole(user, ['moderator'])
+export const isManager = async (user: User | null) => {
+  return await hasRole(user, ['manager'])
 }

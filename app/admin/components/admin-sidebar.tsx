@@ -20,6 +20,8 @@ import {
   X,
   Boxes,
   Tag,
+  User2,
+  User,
 } from "lucide-react";
 
 const menuItems = [
@@ -61,6 +63,7 @@ const menuItems = [
   {
     title: "SYSTEM",
     items: [
+      { title: "Manage Admins", url: "/admin/manage-admins", icon: User },
       { title: "Back to Site", url: "/", icon: ArrowLeft },
     ],
   },
@@ -120,7 +123,7 @@ export function AdminSidebar() {
             <h2>Admin Panel</h2>
           </div>
         </div>
-        
+
         <nav className="sidebar-menu">
           {menuItems.map((group, groupIndex) => (
             <div key={group.title} className={`menu-section ${groupIndex === menuItems.length - 1 ? "mt-auto back-to-site" : ""}`}>
@@ -128,7 +131,7 @@ export function AdminSidebar() {
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.url || (item.url === "/admin" && pathname === "/admin");
-                
+
                 return (
                   <Link
                     key={item.title}

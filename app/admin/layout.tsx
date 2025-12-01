@@ -3,10 +3,12 @@
 import { useUser } from "@/hooks/use-user";
 import { AdminSidebar } from "./components/admin-sidebar";
 import "./globals.css";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { isAdmin } from "@/lib/supabase/role-access-control";
+import { isAdmin, isManager } from "@/lib/supabase/role-access-control";
 import { useState } from "react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function AdminLayout({
   children,
@@ -16,9 +18,23 @@ export default function AdminLayout({
 
   const { user, isLoading } = useUser()
   const router = useRouter()
-
+  const searchParams = useSearchParams()
 
   const [isAdminUser, setIsAdminUser] = useState<boolean | null>(null);
+  const [isManagerUser, setIsManagerUser] = useState<boolean | null>(null);
+
+  // Handle access denied error from middleware
+  useEffect(() => {
+    const error = searchParams.get('error')
+    if (error === 'access_denied') {
+      toast.error("Access Denied", {
+      })
+      // Clean up URL without causing a re-render loop
+      const url = new URL(window.location.href)
+      url.searchParams.delete('error')
+      window.history.replaceState({}, '', url.pathname)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -28,8 +44,10 @@ export default function AdminLayout({
       }
       if (!isLoading && user) {
         const admin = await isAdmin(user);
+        const manager = await isManager(user);
         setIsAdminUser(admin);
-        if (!admin) {
+        setIsManagerUser(manager);
+        if (!admin && !manager) {
           router.push('/');
         }
       }
@@ -45,17 +63,18 @@ export default function AdminLayout({
     );
   }
 
-  if (!user || !isAdminUser) {
+  if (!user || (!isAdminUser && !isManagerUser)) {
     return null; // Will redirect
   }
 
-  if (user && isAdminUser) {
+  if (user && (isAdminUser || isManagerUser)) {
     return (
       <div className="admin-body admin-container">
         <AdminSidebar />
         <main className="admin-main">
           <div className="admin-content">
             {children}
+            <Toaster />
           </div>
         </main>
       </div>
