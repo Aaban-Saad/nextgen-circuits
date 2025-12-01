@@ -114,7 +114,7 @@ export default async function ProductsPage({
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4">
         {/* Search Bar - Top */}
-        <div className="mb-4 px-0 sticky top-16 bg-background z-10 py-4">
+        <div className="mb-4 px-0 sticky top-16 bg-background z-30 py-4">
           <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>
             <div className='flex-1'>
               <form className="relative">

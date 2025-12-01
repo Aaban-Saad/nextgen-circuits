@@ -4,13 +4,16 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Coins, ShoppingCart } from "lucide-react"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { addToCart } from "@/lib/actions/cart"
 import ProductRating from "./product-rating"
+import ProductPrice from "./product-price"
 import { useUser } from "@/hooks/use-user"
 import { useRouter } from "next/navigation"
+import { discountService } from "@/lib/supabase/discounts"
 
 interface Product {
   id: string
@@ -26,8 +29,19 @@ interface Product {
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [hasDiscount, setHasDiscount] = useState(false)
   const user = useUser().user
   const router = useRouter()
+
+  useEffect(() => {
+    checkDiscount()
+  }, [product.id, product.category])
+
+  const checkDiscount = async () => {
+    const discount = await discountService.getProductDiscount(product.id, product.category)
+    console.log('Discount for product', product.id, ':', discount)
+    setHasDiscount(!!discount)
+  }
 
   const handleAddToCart = async () => {
     if (!user) {
@@ -77,26 +91,41 @@ export default function ProductCard({ product }: { product: Product }) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-contain group-hover:scale-105 transition-transform duration-200"
             />
+            
+            {/* Sale Badge */}
+            {hasDiscount && (
+              <div className="absolute top-2 left-2 z-10">
+                <Badge className="bg-red-500 hover:bg-red-600 text-white font-semibold">
+                  SALE
+                </Badge>
+              </div>
+            )}
+
+            {/* Out of Stock Overlay */}
             {product.stock === 0 && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                 <span className="text-white font-semibold text-lg">Out of Stock</span>
               </div>
             )}
+
+            {/* Low Stock Badge */}
             {product.stock > 0 && product.stock <= 10 && (
-              <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded">
+              <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
                 Only {product.stock} left
               </div>
             )}
           </div>
+          
           <div className="px-4 pt-4">
             <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
               {product.name}
             </h3>
             <div className="mt-2 flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-gray-900">৳{product.price.toFixed(2)}</span>
-                <span className="text-xs text-gray-500">BDT</span>
-              </div>
+              <ProductPrice 
+                productId={product.id} 
+                categoryId={product.category} 
+                originalPrice={product.price} 
+              />
               <ProductRating productId={product.id} />
             </div>
           </div>

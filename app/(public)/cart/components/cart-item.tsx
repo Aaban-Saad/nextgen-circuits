@@ -1,14 +1,13 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Minus, Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { updateCartQuantity, removeFromCart } from '@/lib/actions/cart'
-import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Minus, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
 
 interface CartItemProps {
   item: {
@@ -18,6 +17,10 @@ interface CartItemProps {
       id: string
       name: string
       price: number
+      originalPrice: number
+      discountedPrice: number
+      discount: any
+      savings: number
       stock: number
       sku: string
       images: string[]
@@ -26,124 +29,146 @@ interface CartItemProps {
 }
 
 export function CartItem({ item }: CartItemProps) {
-  const [quantity, setQuantity] = useState(item.quantity)
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false)
 
-  const imageUrl = item.product.images?.[0] || '/placeholder-product.jpg'
-
-  const handleQuantityChange = async (newQuantity: number) => {
-    if (newQuantity < 1 || newQuantity > item.product.stock) return
-
-    setLoading(true)
+  const handleUpdateQuantity = async (newQuantity: number) => {
+    if (newQuantity < 1) return
+    
+    setIsUpdating(true)
     const result = await updateCartQuantity(item.id, newQuantity)
-
-    if (result.success) {
-      setQuantity(newQuantity)
-      router.refresh()
-    } else {
+    
+    if (!result.success) {
       toast.error(result.error || 'Failed to update quantity')
     }
-    setLoading(false)
+    
+    setIsUpdating(false)
   }
 
   const handleRemove = async () => {
-    setLoading(true)
+    setIsRemoving(true)
     const result = await removeFromCart(item.id)
-
-    if (result.success) {
-      toast.success('Item removed from cart')
-      router.refresh()
-    } else {
+    
+    if (!result.success) {
       toast.error(result.error || 'Failed to remove item')
+      setIsRemoving(false)
+    } else {
+      toast.success('Item removed from cart')
     }
-    setLoading(false)
   }
 
+  const imageUrl = item.product.images && item.product.images.length > 0
+    ? item.product.images[0]
+    : '/placeholder-product.jpg'
+
+  const hasDiscount = item.product.discount !== null
+  const itemTotal = item.product.discountedPrice * item.quantity
+  const originalItemTotal = item.product.originalPrice * item.quantity
+
   return (
-    <div className="flex gap-4 py-4 border-b">
-      <Link href={`/products/${item.product.sku}`} className="flex-shrink-0">
-        <div className="relative w-24 h-24 bg-muted rounded-lg overflow-hidden">
+    <div className="py-6 flex gap-4">
+      <div className="relative h-24 w-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        <Link href={`/products/${item.product.sku}`}>
           <Image
             src={imageUrl}
             alt={item.product.name}
             fill
             className="object-contain"
           />
-        </div>
-      </Link>
-
-      <div className="flex-1 min-w-0">
-        <Link 
-          href={`/products/${item.product.sku}`}
-          className="font-medium text-foreground hover:text-primary transition-colors line-clamp-2"
-        >
-          {item.product.name}
         </Link>
-        <p className="text-sm text-muted-foreground mt-1">
-          SKU: {item.product.sku}
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {item.product.stock > 0 ? (
-            <span className="text-green-600">In Stock ({item.product.stock} available)</span>
-          ) : (
-            <span className="text-destructive">Out of Stock</span>
-          )}
-        </p>
       </div>
 
-      <div className="flex flex-col items-end gap-2">
-        <p className="font-semibold text-lg">
-          ৳{(item.product.price * quantity).toFixed(2)}
-        </p>
-        
-        <div className="flex items-center gap-2">
+      <div className="flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex justify-between">
+            <div>
+              <Link 
+                href={`/products/${item.product.sku}`}
+                className="font-medium hover:text-primary transition-colors"
+              >
+                {item.product.name}
+              </Link>
+              {hasDiscount && (
+                <Badge className="ml-2 bg-red-500 text-xs">
+                  {item.product.discount.discount_type === 'percentage' 
+                    ? `${item.product.discount.discount_value}% OFF`
+                    : `৳${item.product.discount.discount_value} OFF`
+                  }
+                </Badge>
+              )}
+              <p className="text-sm text-muted-foreground mt-1">
+                SKU: {item.product.sku}
+              </p>
+            </div>
+            
+            <div className="text-right">
+              {hasDiscount ? (
+                <>
+                  <p className="font-semibold text-red-600">৳{itemTotal.toFixed(2)}</p>
+                  <p className="text-sm text-gray-400 line-through">৳{originalItemTotal.toFixed(2)}</p>
+                  <p className="text-xs text-green-600">Save ৳{item.product.savings.toFixed(2)}</p>
+                </>
+              ) : (
+                <p className="font-semibold">৳{itemTotal.toFixed(2)}</p>
+              )}
+            </div>
+          </div>
+
+          {hasDiscount && (
+            <div className="mt-1">
+              <p className="text-xs text-gray-600">
+                Unit: <span className="line-through text-gray-400">৳{item.product.originalPrice.toFixed(2)}</span>
+                {' → '}
+                <span className="text-red-600 font-medium">৳{item.product.discountedPrice.toFixed(2)}</span>
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => handleUpdateQuantity(item.quantity - 1)}
+              disabled={isUpdating || item.quantity <= 1}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            
+            <span className="w-12 text-center font-medium">
+              {item.quantity}
+            </span>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => handleUpdateQuantity(item.quantity + 1)}
+              disabled={isUpdating || item.quantity >= item.product.stock}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+
           <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => handleQuantityChange(quantity - 1)}
-            disabled={loading || quantity <= 1}
+            variant="ghost"
+            size="sm"
+            onClick={handleRemove}
+            disabled={isRemoving}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            <Minus className="h-4 w-4" />
-          </Button>
-          
-          <Input
-            type="number"
-            value={quantity}
-            onChange={(e) => {
-              const val = parseInt(e.target.value)
-              if (val >= 1 && val <= item.product.stock) {
-                handleQuantityChange(val)
-              }
-            }}
-            className="w-16 h-8 text-center"
-            min={1}
-            max={item.product.stock}
-            disabled={loading}
-          />
-          
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => handleQuantityChange(quantity + 1)}
-            disabled={loading || quantity >= item.product.stock}
-          >
-            <Plus className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 mr-1" />
+            Remove
           </Button>
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleRemove}
-          disabled={loading}
-          className="text-muted-foreground hover:text-destructive"
-        >
-          <X className="h-4 w-4 mr-1" />
-          Remove
-        </Button>
+        {item.product.stock <= 10 && (
+          <p className="text-xs text-yellow-600 mt-2">
+            Only {item.product.stock} left in stock
+          </p>
+        )}
       </div>
     </div>
   )

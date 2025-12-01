@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   Boxes,
+  Tag,
 } from "lucide-react";
 
 const menuItems = [
@@ -39,29 +40,28 @@ const menuItems = [
       { title: "Categories", url: "/admin/categories", icon: Folder },
       { title: "Category Groups", url: "/admin/category-groups", icon: Boxes },
       { title: "Orders", url: "/admin/orders", icon: ShoppingCart },
-      { title: "Inventory", url: "/admin/inventory", icon: Warehouse },
+      { title: "Discounts", url: "/admin/discounts", icon: Tag },
       { title: "Customers", url: "/admin/customers", icon: Users },
     ],
   },
-  {
-    title: "CONTENT & MARKETING",
-    items: [
-      { title: "Content", url: "/admin/content", icon: FileText },
-      { title: "Marketing", url: "/admin/marketing", icon: Megaphone },
-    ],
-  },
-  {
-    title: "ANALYTICS & SUPPORT",
-    items: [
-      { title: "Reports", url: "/admin/reports", icon: BarChart3 },
-      { title: "Support", url: "/admin/support", icon: Headphones },
-    ],
-  },
+  // {
+  //   title: "CONTENT & MARKETING",
+  //   items: [
+  //     { title: "Content", url: "/admin/content", icon: FileText },
+  //     { title: "Marketing", url: "/admin/marketing", icon: Megaphone },
+  //   ],
+  // },
+  // {
+  //   title: "ANALYTICS & SUPPORT",
+  //   items: [
+  //     { title: "Reports", url: "/admin/reports", icon: BarChart3 },
+  //     { title: "Support", url: "/admin/support", icon: Headphones },
+  //   ],
+  // },
   {
     title: "SYSTEM",
     items: [
       { title: "Back to Site", url: "/", icon: ArrowLeft },
-      { title: "Settings", url: "/admin/settings", icon: Settings },
     ],
   },
 ];

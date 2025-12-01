@@ -2,6 +2,7 @@
 
 import { getServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { discountServerService } from '@/lib/supabase/discounts-server'
 
 export async function addToCart(productId: string, quantity: number = 1) {
   const supabase = await getServerSupabaseClient()
@@ -80,7 +81,7 @@ export async function getCartItems() {
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    return { items: [], total: 0 }
+    return { items: [], total: 0, originalTotal: 0, totalSavings: 0 }
   }
 
   const { data: cartItems, error } = await supabase
@@ -95,7 +96,8 @@ export async function getCartItems() {
         price,
         stock,
         sku,
-        images
+        images,
+        category
       )
     `)
     .eq('user_id', user.id)
@@ -103,23 +105,54 @@ export async function getCartItems() {
 
   if (error) {
     console.error('Error fetching cart:', error)
-    return { items: [], total: 0 }
+    return { items: [], total: 0, originalTotal: 0, totalSavings: 0 }
   }
 
-  const items = cartItems?.map((item: { id: any; quantity: any; products: any }) => ({
-    id: item.id,
-    quantity: item.quantity,
-    product: item.products
-  })) || []
+  // Fetch discounts for each product
+  const itemsWithDiscounts = await Promise.all(
+    (cartItems || []).map(async (item: any) => {
+      const product = item.products
+      const discount = await discountServerService.getProductDiscount(
+        product.id,
+        product.category
+      )
+      
+      const originalPrice = product.price
+      const discountedPrice = discountServerService.calculateDiscountedPrice(
+        originalPrice,
+        discount
+      )
 
-  const total = items.reduce((sum: number, item: { product: { price: number }; quantity: number }) => {
-    return sum + (item.product.price * item.quantity)
+      return {
+        id: item.id,
+        quantity: item.quantity,
+        product: {
+          ...product,
+          originalPrice,
+          discountedPrice,
+          discount,
+          savings: (originalPrice - discountedPrice) * item.quantity
+        }
+      }
+    })
+  )
+
+  const originalTotal = itemsWithDiscounts.reduce((sum, item) => {
+    return sum + (item.product.originalPrice * item.quantity)
   }, 0)
 
+  const total = itemsWithDiscounts.reduce((sum, item) => {
+    return sum + (item.product.discountedPrice * item.quantity)
+  }, 0)
 
-  return { items, total }
+  const totalSavings = originalTotal - total
 
-
+  return { 
+    items: itemsWithDiscounts, 
+    total, 
+    originalTotal,
+    totalSavings
+  }
 }
 
 export async function updateCartQuantity(cartItemId: string, quantity: number) {

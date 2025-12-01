@@ -11,7 +11,7 @@ export const metadata = {
 }
 
 export default async function CartPage() {
-  const { items, total } = await getCartItems()
+  const { items, total, originalTotal, totalSavings } = await getCartItems()
 
   if (items.length === 0) {
     return (
@@ -47,22 +47,9 @@ export default async function CartPage() {
                 Cart Items ({items.length})
               </h2>
               <div className="divide-y">
-                {items.map((item: { id: any; quantity?: number; product?: { id: string; name: string; price: number; stock: number; sku: string; images: string[] } }) => {
-                  // Provide default values if quantity or product are missing
-                  const safeItem = {
-                    id: String(item.id),
-                    quantity: item.quantity ?? 1,
-                    product: item.product ?? {
-                      id: '',
-                      name: '',
-                      price: 0,
-                      stock: 0,
-                      sku: '',
-                      images: [],
-                    },
-                  }
-                  return <CartItem key={safeItem.id} item={safeItem} />
-                })}
+                {items.map((item) => (
+                  <CartItem key={item.id} item={item} />
+                ))}
               </div>
             </div>
           </div>
@@ -70,7 +57,12 @@ export default async function CartPage() {
           {/* Cart Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-20">
-              <CartSummary subtotal={total} itemCount={items.length} />
+              <CartSummary 
+                subtotal={total} 
+                originalTotal={originalTotal}
+                totalSavings={totalSavings}
+                itemCount={items.length} 
+              />
             </div>
           </div>
         </div>
