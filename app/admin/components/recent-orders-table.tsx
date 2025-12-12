@@ -11,39 +11,56 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
 
-const orders = [
-  {
-    id: "#ORD-2305",
-    customer: "John Smith",
-    status: "Completed",
-    statusColor: "bg-green-500",
-    amount: "$125.99",
-  },
-  {
-    id: "#ORD-2304",
-    customer: "Sarah Johnson",
-    status: "Processing",
-    statusColor: "bg-blue-500",
-    amount: "$89.50",
-  },
-  {
-    id: "#ORD-2303",
-    customer: "Michael Brown",
-    status: "Completed",
-    statusColor: "bg-green-500",
-    amount: "$432.25",
-  },
-  {
-    id: "#ORD-2302",
-    customer: "Emily Davis",
-    status: "Pending",
-    statusColor: "bg-orange-500",
-    amount: "$76.00",
-  },
-];
+type Order = {
+  id: string;
+  recipient_name: string;
+  status: string;
+  total: number;
+  created_at: string;
+};
+
+const statusConfig: Record<string, { label: string; color: string }> = {
+  pending: { label: "Pending", color: "bg-yellow-500" },
+  confirmed: { label: "Confirmed", color: "bg-blue-500" },
+  processing: { label: "Processing", color: "bg-purple-500" },
+  shipped: { label: "Shipped", color: "bg-indigo-500" },
+  delivered: { label: "Delivered", color: "bg-green-500" },
+  cancelled: { label: "Cancelled", color: "bg-red-500" },
+  refunded: { label: "Refunded", color: "bg-gray-500" },
+};
 
 export function RecentOrdersTable() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRecentOrders() {
+      const supabase = getBrowserSupabaseClient();
+
+      const { data } = await supabase
+        .from("orders")
+        .select("id, recipient_name, status, total, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (data) {
+        setOrders(data);
+      }
+      setLoading(false);
+    }
+
+    fetchRecentOrders();
+  }, []);
+
+  const formatCurrency = (value: number) => 
+    `৳${value.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
+
+  const formatOrderId = (id: string) => 
+    `#${id.slice(0, 8).toUpperCase()}`;
+
   return (
     <Card className="bg-white border-gray-200 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
@@ -53,32 +70,50 @@ export function RecentOrdersTable() {
         </Link>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-gray-600">Order ID</TableHead>
-              <TableHead className="text-gray-600">Customer</TableHead>
-              <TableHead className="text-gray-600">Status</TableHead>
-              <TableHead className="text-gray-600 text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>
-                  <Badge className={`${order.statusColor} text-white`}>
-                    {order.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  {order.amount}
-                </TableCell>
+        {loading ? (
+          <div className="h-[200px] flex items-center justify-center">
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="h-[200px] flex items-center justify-center">
+            <p className="text-muted-foreground">No orders yet</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-gray-600">Order ID</TableHead>
+                <TableHead className="text-gray-600">Customer</TableHead>
+                <TableHead className="text-gray-600">Status</TableHead>
+                <TableHead className="text-gray-600 text-right">Amount</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {orders.map((order) => {
+                const status = statusConfig[order.status] || { 
+                  label: order.status, 
+                  color: "bg-gray-500" 
+                };
+                return (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium font-mono">
+                      {formatOrderId(order.id)}
+                    </TableCell>
+                    <TableCell>{order.recipient_name}</TableCell>
+                    <TableCell>
+                      <Badge className={`${status.color} text-white`}>
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(Number(order.total))}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

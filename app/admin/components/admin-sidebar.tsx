@@ -50,9 +50,9 @@ const menuItems = [
     title: "CONTENT & MARKETING",
     items: [
       { title: "Landing Page", url: "/admin/landing-page", icon: PanelsTopLeft },
-      { title: "Content", url: "/admin/content", icon: FileText },
+      // { title: "Content", url: "/admin/content", icon: FileText },
       { title: "Discounts", url: "/admin/discounts", icon: Tag },
-      { title: "Marketing", url: "/admin/marketing", icon: Megaphone },
+      // { title: "Marketing", url: "/admin/marketing", icon: Megaphone },
     ],
   },
   // {
