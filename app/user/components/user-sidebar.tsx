@@ -21,7 +21,7 @@ const menuItems = [
     items: [
       { title: "My Orders", url: "/user/orders", icon: ShoppingCart },
       { title: "My Profile", url: "/user/profile", icon: User },
-      { title: "Settings", url: "/user/settings", icon: Settings },
+      // { title: "Settings", url: "/user/settings", icon: Settings },
     ],
   },
 ];

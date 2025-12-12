@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, ExternalLink } from "lucide-react";
+import { Eye, ExternalLink, Package } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -19,7 +19,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
-import { OrderFilters } from "./order-filters";
 
 type Order = {
   id: string;
@@ -38,6 +37,11 @@ type Order = {
 const statusConfig: Record<string, { label: string; color: string }> = {
   pending: { label: "Pending", color: "bg-yellow-500" },
   confirmed: { label: "Confirmed", color: "bg-green-500" },
+  processing: { label: "Processing", color: "bg-blue-500" },
+  shipped: { label: "Shipped", color: "bg-indigo-500" },
+  delivered: { label: "Delivered", color: "bg-green-600" },
+  cancelled: { label: "Cancelled", color: "bg-red-500" },
+  refunded: { label: "Refunded", color: "bg-gray-500" },
 };
 
 const paymentMethodLabels: Record<string, string> = {
@@ -46,14 +50,11 @@ const paymentMethodLabels: Record<string, string> = {
   nagad: "Nagad",
 };
 
-export function OrdersTable() {
+export function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     async function fetchOrders() {
@@ -67,35 +68,17 @@ export function OrdersTable() {
         .from("orders")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(10);
 
       if (data) {
         setOrders(data);
-        setFilteredOrders(data);
       }
       setLoading(false);
     }
 
     fetchOrders();
   }, []);
-
-  useEffect(() => {
-    let filtered = [...orders];
-
-    // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter((order) =>
-        order.id.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((order) => order.status === statusFilter);
-    }
-
-    setFilteredOrders(filtered);
-  }, [searchQuery, statusFilter, orders]);
 
   const formatCurrency = (amount: number) => {
     return `৳${amount.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
@@ -124,7 +107,7 @@ export function OrdersTable() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="flex items-center justify-center py-12">
           <div className="text-gray-500">Loading orders...</div>
         </div>
@@ -132,75 +115,74 @@ export function OrdersTable() {
     );
   }
 
+  if (orders.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <Package className="h-16 w-16 text-gray-300 mb-4" />
+          <p className="text-gray-500 text-center">No orders yet</p>
+          <p className="text-sm text-gray-400 mt-1">Your recent orders will appear here</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <OrderFilters
-        onSearchChange={setSearchQuery}
-        onStatusChange={setStatusFilter}
-        searchQuery={searchQuery}
-        statusFilter={statusFilter}
-      />
-
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {filteredOrders.length === 0 ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500">
-              {searchQuery || statusFilter !== "all"
-                ? "No orders found matching your filters"
-                : "No orders yet"}
-            </div>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredOrders.map((order) => {
-                  const status = statusConfig[order.status] || {
-                    label: order.status,
-                    color: "bg-gray-500",
-                  };
-                  return (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium font-mono">
-                        {formatOrderId(order.id)}
-                      </TableCell>
-                      <TableCell>{formatDate(order.created_at)}</TableCell>
-                      <TableCell>{order.item_quantity}</TableCell>
-                      <TableCell className="font-medium">
-                        {formatCurrency(Number(order.total))}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${status.color} text-white`}>
-                          {status.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openOrderDetails(order)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-4 border-b">
+          <h3 className="font-semibold text-lg">Recent Orders</h3>
+          <p className="text-sm text-gray-500">Last 10 orders</p>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order ID</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders.map((order) => {
+                const status = statusConfig[order.status] || {
+                  label: order.status,
+                  color: "bg-gray-500",
+                };
+                return (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium font-mono">
+                      {formatOrderId(order.id)}
+                    </TableCell>
+                    <TableCell>{formatDate(order.created_at)}</TableCell>
+                    <TableCell>{order.item_quantity}</TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(Number(order.total))}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={`${status.color} text-white`}>
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openOrderDetails(order)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {/* Order Details Dialog */}
@@ -309,4 +291,3 @@ export function OrdersTable() {
     </>
   );
 }
-

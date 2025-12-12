@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { User, Package, Heart, Settings, Truck } from "lucide-react";
+import { Package, Heart, Truck } from "lucide-react";
 import { UserHeader } from "../components/user-header";
 import { DeliveryDetails } from "./components/delivery-details";
+import { OrdersTab } from "./components/orders-tab";
+import { WishlistTab } from "./components/wishlist-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function MyProfilePage() {
@@ -29,10 +31,6 @@ export default function MyProfilePage() {
               <Heart size={14} className="md:size-4 shrink-0" />
               <span>Wishlist</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="profile-tab-trigger flex items-center gap-1 md:gap-2 data-[state=active]:bg-[#3498db] data-[state=active]:text-white text-xs md:text-sm px-2 md:px-4 py-2">
-              <Settings size={14} className="md:size-4 shrink-0" />
-              <span>Settings</span>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="delivery">
@@ -40,21 +38,11 @@ export default function MyProfilePage() {
           </TabsContent>
 
           <TabsContent value="orders">
-            <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200 text-center text-gray-500">
-              Orders content will be displayed here
-            </div>
+            <OrdersTab />
           </TabsContent>
 
           <TabsContent value="wishlist">
-            <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200 text-center text-gray-500">
-              Wishlist content will be displayed here
-            </div>
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200 text-center text-gray-500">
-              Settings content will be displayed here
-            </div>
+            <WishlistTab />
           </TabsContent>
         </Tabs>
       </div>
