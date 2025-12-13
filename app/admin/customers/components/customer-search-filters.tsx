@@ -1,6 +1,9 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { useState } from "react";
+import { Search, Filter, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -9,40 +12,103 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function CustomerSearchFilters() {
-  return (
-    <div className="bg-white rounded-lg p-4 mb-6 shadow-sm flex flex-wrap items-center gap-4">
-      <div className="relative flex-1 min-w-[250px]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-        <input
-          type="search"
-          placeholder="Search customers..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent"
-        />
-      </div>
-      
-      <Select defaultValue="all-status">
-        <SelectTrigger className="w-[150px]">
-          <SelectValue placeholder="All Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all-status">All Status</SelectItem>
-          <SelectItem value="active">Active</SelectItem>
-          <SelectItem value="inactive">Inactive</SelectItem>
-        </SelectContent>
-      </Select>
+interface CustomerSearchFiltersProps {
+  onSearchChange: (search: string) => void;
+  onRoleChange: (role: string) => void;
+  onStatusChange: (status: string) => void;
+}
 
-      <Select defaultValue="all-memberships">
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All Memberships" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all-memberships">All Memberships</SelectItem>
-          <SelectItem value="standard">Standard</SelectItem>
-          <SelectItem value="premium">Premium</SelectItem>
-          <SelectItem value="vip">VIP</SelectItem>
-        </SelectContent>
-      </Select>
+export function CustomerSearchFilters({
+  onSearchChange,
+  onRoleChange,
+  onStatusChange,
+}: CustomerSearchFiltersProps) {
+  const [search, setSearch] = useState("");
+  const [role, setRole] = useState("all");
+  const [status, setStatus] = useState("all");
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    onSearchChange(value);
+  };
+
+  const handleRoleChange = (value: string) => {
+    setRole(value);
+    onRoleChange(value);
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value);
+    onStatusChange(value);
+  };
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setRole("all");
+    setStatus("all");
+    onSearchChange("");
+    onRoleChange("all");
+    onStatusChange("all");
+  };
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6">
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Search */}
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Input
+              type="text"
+              placeholder="Search by name or email..."
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Role Filter */}
+        <div className="w-full lg:w-48">
+          <Select value={role} onValueChange={handleRoleChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="manager">Manager</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status Filter */}
+        {/* <div className="w-full lg:w-48">
+          <Select value={status} onValueChange={handleStatusChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+        </div> */}
+
+        {/* Clear Filters */}
+        {(search || role !== "all" || status !== "all") && (
+          <Button
+            variant="outline"
+            onClick={handleClearFilters}
+            className="w-full lg:w-auto"
+          >
+            <X size={16} className="mr-2" />
+            Clear
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

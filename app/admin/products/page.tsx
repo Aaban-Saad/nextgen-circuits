@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { ShoppingBag, Tag, AlertTriangle, DollarSign, RefreshCw, Plus } from "lucide-react"
 import { ProductStatsCard } from "../components/product-stats-card"
 import { ProductTable } from "../components/product-table"
@@ -35,6 +35,11 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const { user } = useUser()
 
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+
   const supabase = getBrowserSupabaseClient()
 
   const fetchProducts = async () => {
@@ -60,31 +65,58 @@ export default function ProductsPage() {
     fetchProducts()
   }, [])
 
+  // Get unique categories
+  const categories = useMemo(() => {
+    return Array.from(new Set(products.map(p => p.category))).sort()
+  }, [products])
+
+  // Filter products
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      // Search filter
+      const matchesSearch = !searchQuery || 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchQuery.toLowerCase())
+
+      // Category filter
+      const matchesCategory = categoryFilter === "all" || product.category === categoryFilter
+
+      // Status filter
+      let matchesStatus = true
+      if (statusFilter === "active") {
+        matchesStatus = product.is_active && product.stock > 0
+      } else if (statusFilter === "low-stock") {
+        matchesStatus = product.stock > 0 && product.stock < 50
+      } else if (statusFilter === "out-of-stock") {
+        matchesStatus = product.stock === 0
+      } else if (statusFilter === "inactive") {
+        matchesStatus = !product.is_active
+      }
+
+      return matchesSearch && matchesCategory && matchesStatus
+    })
+  }, [products, searchQuery, categoryFilter, statusFilter])
+
   const handleAddProduct = async (product: ProductFormData, imageFiles: File[]) => {
     setIsSubmitting(true)
 
     try {
-      // Debug logging
       console.log('Current user object:', user)
       console.log('User ID:', user?.id)
       
-      // Await the isAdmin check since it returns a Promise
       const userIsAdmin = await isAdmin(user)
       console.log('Is Admin:', userIsAdmin)
 
-      // Get session to verify auth
       const { data: { session } } = await supabase.auth.getSession()
       console.log('Current session:', session)
       console.log('Session user ID:', session?.user?.id)
       
-      // Check if user is admin
       if (!userIsAdmin) {
         toast.error("Only admins can add products")
         setIsSubmitting(false)
         return
       }
 
-      // Upload images to Supabase storage
       const imageUrls: string[] = []
 
       if (imageFiles.length > 0) {
@@ -105,7 +137,6 @@ export default function ProductsPage() {
             throw new Error(`Failed to upload image ${i + 1}: ${uploadError.message}`)
           }
 
-          // Get public URL
           const { data: { publicUrl } } = supabase.storage
             .from('product-images')
             .getPublicUrl(filePath)
@@ -114,7 +145,6 @@ export default function ProductsPage() {
         }
       }
 
-      // Use session?.user?.id instead of user?.id for created_by
       const { data, error } = await supabase
         .from('products')
         .insert({
@@ -125,15 +155,14 @@ export default function ProductsPage() {
           stock: product.stock,
           sku: product.sku,
           images: imageUrls,
-          is_active: product.isActive ?? true, // Add this line
-          created_by: session?.user?.id || user?.id // Use session user ID if available
+          is_active: product.isActive ?? true,
+          created_by: session?.user?.id || user?.id
         })
         .select()
         .single()
 
       if (error) {
         console.error('Supabase insert error:', error)
-        // Clean up uploaded images if product creation fails
         for (const url of imageUrls) {
           const path = url.split('/').slice(-2).join('/')
           await supabase.storage.from('product-images').remove([path])
@@ -142,11 +171,7 @@ export default function ProductsPage() {
       }
 
       toast.success(`Product "${product.name}" added successfully`)
-
-      // Refresh products list
       fetchProducts()
-
-      // Close dialog
       setIsDialogOpen(false)
 
     } catch (error: any) {
@@ -162,11 +187,11 @@ export default function ProductsPage() {
     setIsSubmitting(false)
   }
 
-  // Calculate stats
-  const totalProducts = products.length
-  const categories = new Set(products.map(p => p.category)).size
-  const lowStockItems = products.filter(p => p.stock < 50).length
-  const inventoryValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0)
+  // Calculate stats based on filtered products
+  const totalProducts = filteredProducts.length
+  const categoriesCount = new Set(filteredProducts.map(p => p.category)).size
+  const lowStockItems = filteredProducts.filter(p => p.stock > 0 && p.stock < 50).length
+  const inventoryValue = filteredProducts.reduce((sum, p) => sum + (p.price * p.stock), 0)
 
   return (
     <>
@@ -210,7 +235,7 @@ export default function ProductsPage() {
           />
           <ProductStatsCard
             title="Categories"
-            value={categories.toString()}
+            value={categoriesCount.toString()}
             trend="+2↑"
             trendPositive={true}
             icon={<Tag size={24} className="text-[#2ecc71]" />}
@@ -220,13 +245,13 @@ export default function ProductsPage() {
             title="Low Stock Items"
             value={lowStockItems.toString()}
             trend="+5↑"
-            trendPositive={true}
+            trendPositive={false}
             icon={<AlertTriangle size={24} className="text-[#9333ea]" />}
             iconBg="bg-purple-100"
           />
           <ProductStatsCard
             title="Inventory Value"
-            value={`$${inventoryValue.toFixed(2)}`}
+            value={`৳${inventoryValue.toFixed(2)}`}
             trend="+8.3%↑"
             trendPositive={true}
             icon={<DollarSign size={24} className="text-[#e74c3c]" />}
@@ -235,10 +260,15 @@ export default function ProductsPage() {
         </div>
 
         {/* Search and Filters */}
-        <ProductSearchFilters />
+        <ProductSearchFilters
+          onSearchChange={setSearchQuery}
+          onCategoryChange={setCategoryFilter}
+          onStatusChange={setStatusFilter}
+          categories={categories}
+        />
 
         {/* Product Table */}
-        <ProductTable products={products} loading={loading} onRefresh={fetchProducts} />
+        <ProductTable products={filteredProducts} loading={loading} onRefresh={fetchProducts} />
 
         {/* Add Product Dialog */}
         <AddProductDialog

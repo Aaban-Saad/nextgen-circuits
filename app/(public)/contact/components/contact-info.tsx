@@ -19,17 +19,17 @@ export default function ContactInfo() {
           <ContactItem
             icon={<MapPin size={22} style={{ color: 'var(--accent-cyan)' }} />}
             title="Our Location"
-            lines={["123 Electronics Street, Dhaka, Bangladesh"]}
+            lines={["Plot # 15 Block B, Bashundhara R/A, Dhaka, Bangladesh"]}
           />
           <ContactItem
             icon={<Phone size={22} style={{ color: 'var(--accent-cyan)' }} />}
             title="Phone Number"
-            lines={["+880 1234-567890", "+880 9876-543210"]}
+            lines={["+880 1968-872878", "+880 1961-105658"]}
           />
           <ContactItem
             icon={<Mail size={22} style={{ color: 'var(--accent-cyan)' }} />}
             title="Email Address"
-            lines={["info@nextgencircuits.com", "support@nextgencircuits.com"]}
+            lines={["nextgen.ckt@proton.me"]}
           />
           <ContactItem
             icon={<Clock size={22} style={{ color: 'var(--accent-cyan)' }} />}

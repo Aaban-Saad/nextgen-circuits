@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CreditCard, Wallet, Banknote, AlertCircle, Truck } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createOrder, calculateDeliveryFeePreview } from '@/lib/actions/checkout'
+import { getBrowserSupabaseClient } from '@/lib/supabase/browser'
 import { toast } from 'sonner'
 
 interface CheckoutFormProps {
@@ -22,6 +23,7 @@ interface CheckoutFormProps {
 export function CheckoutForm({ items, total, onDeliveryFeeChange }: CheckoutFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [loadingDetails, setLoadingDetails] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash' | 'nagad'>('cod')
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null)
 
@@ -37,6 +39,47 @@ export function CheckoutForm({ items, total, onDeliveryFeeChange }: CheckoutForm
     nagad_number: '',
     nagad_transaction_id: '',
   })
+
+  // Load delivery details on mount
+  useEffect(() => {
+    const loadDeliveryDetails = async () => {
+      try {
+        const supabase = getBrowserSupabaseClient()
+        
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+          setLoadingDetails(false)
+          return
+        }
+
+        const { data, error } = await supabase
+          .from('delivery_details')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_default', true)
+          .single()
+
+        if (data && !error) {
+          setFormData(prev => ({
+            ...prev,
+            recipient_name: data.recipient_name || '',
+            recipient_phone: data.recipient_phone || '',
+            recipient_secondary_phone: data.recipient_secondary_phone || '',
+            recipient_address: data.recipient_address || '',
+            special_instruction: data.special_instruction || '',
+          }))
+          toast.success('Delivery details loaded')
+        }
+      } catch (error) {
+        console.error('Error loading delivery details:', error)
+      } finally {
+        setLoadingDetails(false)
+      }
+    }
+
+    loadDeliveryDetails()
+  }, [])
 
   // Calculate delivery fee when address changes
   useEffect(() => {
@@ -98,7 +141,7 @@ export function CheckoutForm({ items, total, onDeliveryFeeChange }: CheckoutForm
 
       if (result.success) {
         toast.success('Order placed successfully!')
-        // router.push(`/orders/${result.orderId}`)
+        router.push('/user/orders')
       } else {
         toast.error(result.error || 'Failed to place order')
       }
@@ -112,6 +155,20 @@ export function CheckoutForm({ items, total, onDeliveryFeeChange }: CheckoutForm
 
   const totalWeight = items.length * 0.05 // 50g per item
   const finalTotal = deliveryFee ? total + deliveryFee : total
+
+  if (loadingDetails) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center text-gray-500">
+              <div className="animate-pulse">Loading delivery details...</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -385,7 +442,7 @@ export function CheckoutForm({ items, total, onDeliveryFeeChange }: CheckoutForm
         >
           Back to Cart
         </Button>
-        <Button type="submit" disabled={loading} size="lg">
+        <Button type="submit" disabled={loading || loadingDetails} size="lg">
           {loading ? 'Processing...' : 'Place Order'}
         </Button>
       </div>

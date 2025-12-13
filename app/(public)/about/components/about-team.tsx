@@ -1,34 +1,40 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Linkedin, Twitter, Facebook } from "lucide-react"
+import { Linkedin, Twitter, Facebook, User } from "lucide-react"
 import Image from "next/image"
 
 export default function AboutTeam() {
   const teamMembers = [
     {
-      name: "Fahim Faisal Rafi",
-      role: "Founder & CEO",
-      image: "https://via.placeholder.com/300x300?text=Fahim+Rafi",
+      name: "Md. Mahin Rahman",
+      // role: "Founder & CEO",
+      // image: "https://via.placeholder.com/300x300?text=Fahim+Rafi",
       delay: 0.1,
     },
     {
-      name: "Priya Sharma",
-      role: "Technical Director",
-      image: "https://via.placeholder.com/300x300?text=Priya+Sharma",
+      name: "Habibur Rahman",
+      // role: "Technical Director",
+      // image: "https://via.placeholder.com/300x300?text=Priya+Sharma",
       delay: 0.2,
     },
     {
-      name: "Kamal Hassan",
-      role: "Operations Manager",
-      image: "https://via.placeholder.com/300x300?text=Kamal+Hassan",
+      name: "Fahim Faisal Rafi",
+      // role: "Operations Manager",
+      // image: "https://via.placeholder.com/300x300?text=Kamal+Hassan",
       delay: 0.3,
     },
     {
-      name: "Nadia Islam",
-      role: "Customer Support Lead",
-      image: "https://via.placeholder.com/300x300?text=Nadia+Islam",
+      name: "Towhidul Shanto",
+      // role: "Customer Support Lead",
+      // image: "https://via.placeholder.com/300x300?text=Nadia+Islam",
       delay: 0.4,
+    },
+    {
+      name: "Jamil Ahmed",
+      // role: "Customer Support Lead",
+      // image: "https://via.placeholder.com/300x300?text=Nadia+Islam",
+      delay: 0.5,
     },
   ]
 
@@ -61,7 +67,7 @@ export default function AboutTeam() {
           The passionate individuals behind Nextgen Circuits who work tirelessly to serve our community:
         </motion.p>
 
-        <div className="team-grid grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-10 mt-10">
+        <div className="flex flex-wrap justify-center gap-10 mt-10">
           {teamMembers.map((member, idx) => (
             <motion.div
               key={idx}
@@ -69,7 +75,7 @@ export default function AboutTeam() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: member.delay }}
               viewport={{ once: true }}
-              className="team-member relative rounded-sm overflow-hidden transition-all duration-400 hover:-translate-y-2 group"
+              className="team-member relative rounded-sm overflow-hidden transition-all duration-400 hover:-translate-y-2 group w-[280px]"
               style={{ backgroundColor: 'var(--background)', boxShadow: '0 5px 20px var(--shadow-medium)' }}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 15px 30px var(--shadow-medium)' }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 5px 20px var(--shadow-medium)' }}
@@ -81,10 +87,11 @@ export default function AboutTeam() {
               />
 
               {/* Image */}
-              <div className="member-image relative h-[280px] overflow-hidden">
+              <div className="flex grow items-center justce member-image relative h-[280px] overflow-hidden">
                 <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                 <Image
-                  src={member.image}
+                  // src={member.image}
+                  src={'user.jpg'}
                   alt={member.name}
                   fill
                   sizes="(max-width: 640px) 100vw, 33vw"
@@ -98,9 +105,9 @@ export default function AboutTeam() {
                 <h3 className="text-[1.4rem] mb-2 transition-colors duration-300" style={{ color: 'var(--hero-text)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-cyan)' }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--hero-text)' }}>
                   {member.name}
                 </h3>
-                <p className="mb-4 font-medium text-[1.05rem]" style={{ color: 'var(--accent-cyan)' }}>{member.role}</p>
+                {/* <p className="mb-4 font-medium text-[1.05rem]" style={{ color: 'var(--accent-cyan)' }}>{member.role}</p> */}
 
-                <div className="social-links flex justify-center gap-4">
+                {/* <div className="social-links flex justify-center gap-4">
                   {[
                     { Icon: Linkedin, name: 'linkedin', color: '#0A66C2' },
                     { Icon: Twitter, name: 'twitter', color: '#1DA1F2' },
@@ -123,7 +130,7 @@ export default function AboutTeam() {
                       `}</style>
                     </a>
                   ))}
-                </div>
+                </div> */}
               </div>
             </motion.div>
           ))}

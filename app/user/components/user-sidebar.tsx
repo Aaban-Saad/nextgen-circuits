@@ -72,7 +72,7 @@ export function UserSidebar() {
 
       <aside className={`user-sidebar ${isMobileMenuOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-header" style={{ padding: "20px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
-          <Link href="/user" className="logo-text" onClick={closeMobileMenu}>
+          <Link href="/products" className="logo-text" onClick={closeMobileMenu}>
             <span className="next" style={{ fontWeight: "bold" }}>Nextgen</span> <span className="circuits" style={{ fontWeight: "normal" }}>Circuits</span>
           </Link>
           <div className="admin-title">

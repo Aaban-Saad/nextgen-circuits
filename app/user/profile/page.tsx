@@ -7,6 +7,7 @@ import { DeliveryDetails } from "./components/delivery-details";
 import { OrdersTab } from "./components/orders-tab";
 import { WishlistTab } from "./components/wishlist-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckoutForm } from "@/app/(public)/checkout/components/checkout-form";
 
 export default function MyProfilePage() {
   const [activeTab, setActiveTab] = useState("delivery");
