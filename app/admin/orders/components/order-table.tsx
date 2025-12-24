@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, Truck, ExternalLink, CheckCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
 import {
   Table,
@@ -79,7 +79,19 @@ const orderStatuses = [
   { value: "refunded", label: "Refunded" },
 ];
 
-export function OrderTable() {
+interface OrderTableProps {
+  onOrderUpdate?: () => void;
+  searchQuery?: string;
+  statusFilter?: string;
+  timeRangeFilter?: string;
+}
+
+export function OrderTable({ 
+  onOrderUpdate, 
+  searchQuery = "", 
+  statusFilter = "all-status",
+  timeRangeFilter = "all-time" 
+}: OrderTableProps = {}) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [approvingId, setApprovingId] = useState<string | null>(null);
@@ -194,6 +206,11 @@ export function OrderTable() {
       }
 
       toast.success(`Order status updated to ${newStatus}`);
+      
+      // Notify parent to refresh stats
+      if (onOrderUpdate) {
+        onOrderUpdate();
+      }
     } catch (error) {
       console.error("Error updating order status:", error);
       toast.error("Failed to update order status");
@@ -258,6 +275,11 @@ export function OrderTable() {
       toast.success(`Order placed in Pathao! Consignment ID: ${data.data.consignment_id}`);
 
       await fetchOrders();
+      
+      // Notify parent to refresh stats
+      if (onOrderUpdate) {
+        onOrderUpdate();
+      }
     } catch (error) {
       console.error("Error placing order in Pathao:", error);
       toast.error("Failed to place order in Pathao");
@@ -290,6 +312,54 @@ export function OrderTable() {
     return `https://merchant.pathao.com/tracking?consignment_id=${consignmentId}&phone=${phone}`;
   };
 
+  // Filter orders based on search and filters
+  const filteredOrders = useMemo(() => {
+    let filtered = [...orders];
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (order) =>
+          order.id.toLowerCase().includes(query) ||
+          order.recipient_name.toLowerCase().includes(query) ||
+          order.recipient_phone.includes(query)
+      );
+    }
+
+    // Status filter
+    if (statusFilter && statusFilter !== "all-status") {
+      filtered = filtered.filter((order) => order.status === statusFilter);
+    }
+
+    // Time range filter
+    if (timeRangeFilter && timeRangeFilter !== "all-time") {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+      filtered = filtered.filter((order) => {
+        const orderDate = new Date(order.created_at);
+        switch (timeRangeFilter) {
+          case "today":
+            return orderDate >= startOfToday;
+          case "week":
+            return orderDate >= startOfWeek;
+          case "month":
+            return orderDate >= startOfMonth;
+          case "year":
+            return orderDate >= startOfYear;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return filtered;
+  }, [orders, searchQuery, statusFilter, timeRangeFilter]);
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -316,14 +386,16 @@ export function OrderTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12 text-gray-500">
-                  No orders found
+                  {searchQuery || statusFilter !== "all-status" || timeRangeFilter !== "all-time"
+                    ? "No orders found matching your filters"
+                    : "No orders found"}
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              filteredOrders.map((order) => (
                 <TableRow key={order.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium text-gray-900">
                     #{order.id.slice(0, 8).toUpperCase()}
