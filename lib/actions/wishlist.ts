@@ -1,9 +1,11 @@
-// import { revalidatePath } from 'next/cache'
-import { getBrowserSupabaseClient } from '../supabase/browser'
+'use server'
+
+import { getServerSupabaseClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 
 export async function addToWishlist(productId: string) {
-  const supabase = await getBrowserSupabaseClient()
-
+  const supabase = await getServerSupabaseClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -22,13 +24,15 @@ export async function addToWishlist(productId: string) {
     return { success: false, error: error.message }
   }
 
-  // revalidatePath('/')
+  revalidatePath('/wishlist')
+  revalidatePath('/products')
+  revalidatePath('/', 'layout')
   return { success: true }
 }
 
 export async function removeFromWishlist(productId: string) {
-  const supabase = await getBrowserSupabaseClient()
-
+  const supabase = await getServerSupabaseClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -45,13 +49,15 @@ export async function removeFromWishlist(productId: string) {
     return { success: false, error: error.message }
   }
 
-  // revalidatePath('/')
+  revalidatePath('/wishlist')
+  revalidatePath('/products')
+  revalidatePath('/', 'layout')
   return { success: true }
 }
 
 export async function checkWishlistStatus(productId: string) {
-  const supabase = await getBrowserSupabaseClient()
-
+  const supabase = await getServerSupabaseClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -69,8 +75,8 @@ export async function checkWishlistStatus(productId: string) {
 }
 
 export async function getWishlistItems() {
-  const supabase = await getBrowserSupabaseClient()
-
+  const supabase = await getServerSupabaseClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -110,8 +116,8 @@ export async function getWishlistItems() {
 }
 
 export async function moveToCart(productId: string) {
-  const supabase = await getBrowserSupabaseClient()
-
+  const supabase = await getServerSupabaseClient()
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -178,6 +184,8 @@ export async function moveToCart(productId: string) {
     .eq('user_id', user.id)
     .eq('product_id', productId)
 
-  // revalidatePath('/')
+  revalidatePath('/wishlist')
+  revalidatePath('/cart')
+  revalidatePath('/', 'layout')
   return { success: true }
 }

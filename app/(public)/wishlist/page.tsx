@@ -9,6 +9,10 @@ export const metadata = {
   description: 'View and manage your wishlist',
 }
 
+// Add these exports to disable caching
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function WishlistPage() {
   const { items } = await getWishlistItems()
 
