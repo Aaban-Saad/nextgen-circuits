@@ -135,7 +135,7 @@ export function ProductTable({ products, loading, onRefresh }: ProductTableProps
                       </span>
                     </TableCell>
                     <TableCell className="font-medium text-gray-900 whitespace-nowrap">
-                      ${product.price.toFixed(2)}
+                      ৳{product.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Badge className={`${stockStatus.color} text-white`}>
