@@ -1,14 +1,12 @@
-'use server'
-
 import { getServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { discountServerService } from '@/lib/supabase/discounts-server'
+import { getBrowserSupabaseClient } from '../supabase/browser'
 
 export async function addToCart(productId: string, quantity: number = 1) {
-  const supabase = await getServerSupabaseClient()
-  
+  const supabase = await getBrowserSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     return { success: false, error: 'You must be logged in to add items to cart' }
   }
