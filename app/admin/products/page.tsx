@@ -228,7 +228,7 @@ export default function ProductsPage() {
           <ProductStatsCard
             title="Total Products"
             value={totalProducts.toString()}
-            trend="+12.5%↑"
+            // trend="+12.5%↑"
             trendPositive={true}
             icon={<ShoppingBag size={24} className="text-[#3498db]" />}
             iconBg="bg-blue-100"
@@ -236,7 +236,7 @@ export default function ProductsPage() {
           <ProductStatsCard
             title="Categories"
             value={categoriesCount.toString()}
-            trend="+2↑"
+            // trend="+2↑"
             trendPositive={true}
             icon={<Tag size={24} className="text-[#2ecc71]" />}
             iconBg="bg-green-100"
@@ -244,7 +244,7 @@ export default function ProductsPage() {
           <ProductStatsCard
             title="Low Stock Items"
             value={lowStockItems.toString()}
-            trend="+5↑"
+            // trend="+5↑"
             trendPositive={false}
             icon={<AlertTriangle size={24} className="text-[#9333ea]" />}
             iconBg="bg-purple-100"
@@ -252,7 +252,7 @@ export default function ProductsPage() {
           <ProductStatsCard
             title="Inventory Value"
             value={`৳${inventoryValue.toFixed(2)}`}
-            trend="+8.3%↑"
+            // trend="+8.3%↑"
             trendPositive={true}
             icon={<DollarSign size={24} className="text-[#e74c3c]" />}
             iconBg="bg-red-100"
