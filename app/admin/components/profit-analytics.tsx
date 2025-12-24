@@ -65,7 +65,7 @@ export function ProfitAnalytics() {
       // Get all unique product IDs
       const productIds = Array.from(
         new Set(
-          orders?.flatMap(order => 
+          orders?.flatMap((order: { order_items: any[] }) => 
             order.order_items?.map(item => item.product_id)
           ) || []
         )
@@ -81,18 +81,18 @@ export function ProfitAnalytics() {
 
       // Create a map of product costs
       const costMap = new Map(
-        productCosts?.map(cost => [cost.product_id, cost.buying_price]) || []
+        productCosts?.map((cost: { product_id: any; buying_price: any }) => [cost.product_id, cost.buying_price]) || []
       )
 
       // Calculate metrics
       let totalRevenue = 0
       let totalCost = 0
 
-      orders?.forEach(order => {
+      orders?.forEach((order: { total: any; order_items: any[] }) => {
         totalRevenue += Number(order.total) || 0
 
         order.order_items?.forEach(item => {
-          const buyingPrice = costMap.get(item.product_id) || 0
+          const buyingPrice = Number(costMap.get(item.product_id)) || 0
           totalCost += buyingPrice * item.quantity
         })
       })
