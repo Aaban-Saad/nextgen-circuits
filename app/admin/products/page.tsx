@@ -264,7 +264,6 @@ export default function ProductsPage() {
           onSearchChange={setSearchQuery}
           onCategoryChange={setCategoryFilter}
           onStatusChange={setStatusFilter}
-          categories={categories}
         />
 
         {/* Product Table */}
