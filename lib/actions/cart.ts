@@ -1,5 +1,5 @@
 import { getServerSupabaseClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+// import { revalidatePath } from 'next/cache'
 import { discountServerService } from '@/lib/supabase/discounts-server'
 import { getBrowserSupabaseClient } from '../supabase/browser'
 
@@ -69,7 +69,7 @@ export async function addToCart(productId: string, quantity: number = 1) {
     }
   }
 
-  revalidatePath('/')
+  // revalidatePath('/')
   return { success: true }
 }
 
@@ -195,7 +195,7 @@ export async function updateCartQuantity(cartItemId: string, quantity: number) {
     return { success: false, error: error.message }
   }
 
-  revalidatePath('/')
+  // revalidatePath('/')
   return { success: true }
 }
 
@@ -211,7 +211,7 @@ export async function removeFromCart(cartItemId: string) {
     return { success: false, error: error.message }
   }
 
-  revalidatePath('/')
+  // revalidatePath('/')
   return { success: true }
 }
 
@@ -233,6 +233,6 @@ export async function clearCart() {
     return { success: false, error: error.message }
   }
 
-  revalidatePath('/')
+  // revalidatePath('/')
   return { success: true }
 }
